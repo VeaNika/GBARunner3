@@ -5,6 +5,7 @@
 #include "GbaIoRegOffsets.h"
 #include "SdCache/SdCacheDefs.h"
 #include "DtcmStackDefs.inc"
+#include "MemoryEmulator/RomDefs.h"
 
 /// @brief Loads a 16-bit value from the given GBA memory address.
 ///        When unaligned rotation is applied.
@@ -93,9 +94,9 @@ arm_func memu_load16Bios
     bx lr
 
 arm_func memu_load16Ewram
-    cmp r8, #0x02400000
-    addhs r9, r8, #(0x08000000 - 0x02200000)
-    bhs memu_load16RomHiContinue
+    cmp r8, #ROM_LINEAR_END_DS_ADDRESS
+        addhs r9, r8, #(ROM_LINEAR_GBA_ADDRESS - ROM_LINEAR_DS_ADDRESS)
+        bhs memu_load16RomHiContinue
 
     bic r9, r8, #0x00FC0000
     ldrh r9, [r9]
@@ -145,12 +146,9 @@ arm_func memu_load16Pltt
     bx lr
 
 arm_func memu_load16Vram012
-    mov r11, #0x06000000
-    movs r10, r8, lsl #15
-        addmi r11, r11, #0x3F0000
-        bicmi r10, r10, #(0x8000 << 15)
-
-    add r11, r11, r10, lsr #15
+    bic r11, r8, #0xFE0000
+    tst r11, #0x10000
+        addne r11, r11, #0x3F0000
     ldrh r9, [r11]
     tst r8, #1
         bxeq lr
@@ -158,13 +156,10 @@ arm_func memu_load16Vram012
     bx lr
 
 arm_func memu_load16Vram345
-    mov r11, #0x06000000
-    movs r10, r8, lsl #15
-        bicmi r10, r10, #(0x8000 << 15)
-
-    cmp r10, #(0x14000 << 15)
+    bic r11, r8, #0xFE0000
+    sub r10, r11, #0x06000000
+    cmp r10, #0x14000
         addhs r11, r11, #0x3F0000
-    add r11, r11, r10, lsr #15
     ldrh r9, [r11]
     tst r8, #1
         bxeq lr
@@ -178,22 +173,7 @@ arm_func memu_load16Oam
         movne r9, r9, ror #8
     bx lr
 
-arm_func memu_load16Rom
-    ldr r11,= (sdc_romBlockToCacheBlock - (0x08000000 >> (SDC_BLOCK_SHIFT - 2)))
-    bic r12, r8, #(3 << (SDC_BLOCK_SHIFT - 2))
-memu_load16RomContinue:
-    ldr r11, [r11, r12, lsr #(SDC_BLOCK_SHIFT - 2)]
-    mov r9, r8, lsl #(32 - SDC_BLOCK_SHIFT)
-    mov r9, r9, lsr #(32 - SDC_BLOCK_SHIFT)
-    cmp r11, #0
-        beq load16RomCacheMiss
-    ldrh r9, [r11, r9]
-    tst r8, #1
-        bxeq lr
-    mov r9, r9, ror #8
-    bx lr
-
-load16RomCacheMiss:
+arm_func memu_load16RomCacheMiss
     ldr r11,= dtcmStackEnd
     // check if we already had a stack
     sub r10, r11, r13

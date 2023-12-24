@@ -20,8 +20,8 @@ _start:
     // move dtcm in place
     ldr r0,= 0x8000002C
     mcr p15, 0, r0, c9, c1, 0
-    // setup itcm to cover the first 32KB of memory
-    mov r0, #0xC
+    // setup itcm to cover the first 32MB of memory
+    mov r0, #0x20
     mcr p15, 0, r0, c9, c1, 1
 
     // iwram to arm 9
@@ -88,6 +88,18 @@ bss_done:
     cmp r0, r1
     bne 1b
 ewram_bss_done:
+
+    // clear vram hi bss
+    ldr r0,= __vramhi_bss_start
+    ldr r1,= __vramhi_bss_end
+    cmp r0, r1
+    beq vramhi_bss_done
+    mov r2, #0
+1:
+    str r2, [r0], #4
+    cmp r0, r1
+    bne 1b
+vramhi_bss_done:
     // bkpt #0
 
     // disable interrupts
@@ -100,6 +112,10 @@ ewram_bss_done:
     push {r11, r12}
     bl __libc_init_array
     pop {r0, r1}
+
+    // idk why this is needed
+    nop
+
     b gbaRunnerMain
 
 .pool

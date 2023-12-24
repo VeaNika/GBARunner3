@@ -198,14 +198,24 @@ SECTIONS
 		KEEP (VMIrq.o(.itcm))
 		. = 0x400;
 		KEEP (ArmDispatch.o(.itcm))
-		. = 0x460;
+		. = 0x450;
 		KEEP (VMMode.o(.itcm))
-		. = 0x7C4;
+		. = 0x7B4;
 		KEEP (VMSwi.o(.itcm))
 		KEEP (ArmLoadStoreShortRm.o(.itcm))
 		KEEP (IoFallback.o(.itcm))
 		. = 0xC00;
 		KEEP (ThumbDispatch.o(.itcm))
+		KEEP (ThumbLoad.o(.itcm))
+		KEEP (ThumbStore.o(.itcm))
+		KEEP (ThumbLdmStm.o(.itcm))
+		KEEP (ThumbLoadPc.o(.itcm))
+		. = 0x2000;
+		KEEP (ThumbGetRnRm.o(.itcm))
+		KEEP (ArmLoadStoreShortRd.o(.itcm))
+		KEEP (ArmSwpRd.o(.itcm))
+		. = 0x3000;
+		KEEP (ThumbGetRn.o(.itcm))
 		*(.itcm)
 		*.itcm*(.text .stub .text.*)
 		. = ALIGN(4);
