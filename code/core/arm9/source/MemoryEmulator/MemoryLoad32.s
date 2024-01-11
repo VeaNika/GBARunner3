@@ -188,7 +188,7 @@ arm_func memu_load32RomCacheMiss
     ldr r11,= dtcmStackEnd
     // check if we already had a stack
     sub r10, r11, r13
-    cmp r10, #DTCM_STACK_SIZE
+    cmp r10, #(DTCM_STACK_SIZE + DTCM_IRQ_STACK_SIZE)
     mov r10, r13
     // if not begin at the end of the stack
     movhs sp, r11
@@ -201,7 +201,7 @@ arm_func memu_load32RomCacheMiss
     bx lr
 
 arm_func memu_load32RomHi
-    bic r9, r8, #0x0E000000
+    bic r9, r8, #0x06000000
 memu_load32RomHiContinue:
     ldr r11,= (sdc_romBlockToCacheBlock - (0x08000000 >> (SDC_BLOCK_SHIFT - 2)))
     bic r12, r9, #(3 << (SDC_BLOCK_SHIFT - 2))
