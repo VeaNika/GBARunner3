@@ -6,9 +6,9 @@
 // based on https://gist.github.com/profi200/bfa7be60b3eecb8c43f59000f626c743
 
 #define TARGET_GAMMA  (2.f)
-#define DISPLAY_GAMMA (2.f)
+#define DISPLAY_GAMMA (1.6f)
 #define DARKEN_SCREEN (0.5f)
-#define LUMINANCE     (0.93f) // 0.99f for mGBA.
+#define LUMINANCE     (0.89f) // 0.99f for mGBA.
 
 // https://stackoverflow.com/a/62699172
 template <typename T, std::size_t N, typename Generator>
@@ -61,24 +61,57 @@ static constexpr u16 calculateColor(const u16 i)
     * [rg][ g][bg]   [g]
     * [rb][gb][ b]   [b]
     */
+
 #if 1
-    // libretro.
-    // 0.800, 0.275, -0.075,
-    // 0.135, 0.640,  0.225,
-    // 0.195, 0.155,  0.650
-    double newR = 0.8 * r + 0.275 * g + -0.075 * b;
-    double newG = 0.135 * r + 0.64 * g + 0.225 * b;
-    double newB = 0.195 * r + 0.155 * g + 0.65 * b;
-    // Assuming no alpha channel in original calculation.
+    // AGB-001
+    // double newR = 0.8 * r + 0.275 * g + -0.075 * b;
+    // double newG = 0.135 * r + 0.64 * g + 0.225 * b;
+    // double newB = 0.195 * r + 0.155 * g + 0.65 * b;
+
+    // NDS-Phat-W
+    double newR = 0.815 * r + 0.275 * g + -0.09 * b;
+    double newG = 0.1 * r + 0.64 * g + 0.26 * b;
+    double newB = 0.1075 * r + 0.1725 * g + 0.72 * b;
+
+    // // NSO-GBA
+    // double newR = 0.865 * r + 0.1225 * g + 0.0125 * b;
+    // double newG = 0.0575 * r + 0.925 * g + 0.0125 * b;
+    // double newB = 0.0575 * r + 0.1225 * g + 0.82 * b;
+
+    // // PSP-Phat
+    // double newR = 0.835 * r + 0.16 * g + -0.13 * b;
+    // double newG = 0.0425 * r + 0.745 * g + 0.155 * b;
+    // double newB = 0.0225 * r + 0.015 * g + 0.9625 * b;
+
+    // // AGS_101
+    // double newR = 0.955 * r + 0.11 * g + -0.065 * b;
+    // double newG = 0.0375 * r + 0.885 * g + 0.0775 * b;
+    // double newB = 0.0025 * r + -0.03 * g + 1.0275 * b;
+
+    // // OLED_NSO
+    // double newR = 1.54 * r + -0.48 * g + -0.06 * b;
+    // double newG = -0.045 * r + 1.0625 * g + -0.0175 * b;
+    // double newB = -0.0225 * r + -0.075 * g + 1.1025 * b;
+
+    // // VBA
+    // double newR = 0.73 * r + 0.27 * g + 0.0 * b;
+    // double newG = 0.085 * r + 0.675 * g + 0.24 * b;
+    // double newB = 0.085 * r + 0.24 * g + 0.675 * b;
+
+    // // No$GBA
+    // double newR = 0.73 * r + 0.27 * g + 0.0 * b;
+    // double newG = 0.08 * r + 0.67 * g + 0.2 * b;
+    // double newB = 0.08 * r + 0.2 * g + 0.67 * b;
+
+    // mGBA.
+    // double newR = 0.84 * r + 0.18 * g + 0.0 * b;
+    // double newG = 0.09 * r + 0.67 * g + 0.26 * b;
+    // double newB = 0.15 * r + 0.10 * g + 0.73 * b;
 #else
     // mGBA.
-    // 0.84, 0.18, 0.00,
-    // 0.09, 0.67, 0.26,
-    // 0.15, 0.10, 0.73
     double newR = 0.84 * r + 0.18 * g + 0.0 * b;
     double newG = 0.09 * r + 0.67 * g + 0.26 * b;
     double newB = 0.15 * r + 0.10 * g + 0.73 * b;
-    // Assuming no alpha channel in original calculation.
 #endif
 
     if (newR < 0)
