@@ -43,6 +43,7 @@ SOURCES		:=	source \
 				source/Peripherals \
 				source/Peripherals/Graphics \
 				source/Peripherals/Interrupts \
+				source/Peripherals/RomGpio \
 				source/Peripherals/Sound \
 				source/Save \
 				source/SdCache \

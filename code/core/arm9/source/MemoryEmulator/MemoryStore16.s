@@ -130,7 +130,16 @@ arm_func memu_store16Oam
     bx lr
 
 arm_func memu_store16Rom
-    bx lr
+    bic r10, r8, #0xFE000000
+    sub r10, r10, #0xC4
+    cmp r10, #(0xC4 - 0xC8)
+        bxhi lr // not rom gpio
+
+    push {r0-r3,lr}
+    mov r0, r10 // offset
+    mov r1, r9 // value
+    bl rio_write
+    pop {r0-r3,pc}
 
 arm_func memu_store16Sram
     tst r8, #1
