@@ -1,4 +1,5 @@
 #include "common.h"
+#include <libtwl/ipc/ipcSync.h>
 #include <string.h>
 #include "dldi.h"
 #include "FsIpcService.h"
@@ -57,23 +58,23 @@ void FsIpcService::SetupDldi(const fs_ipc_cmd_t* cmd) const
 void FsIpcService::DldiReadSectors(const fs_ipc_cmd_t* cmd) const
 {
     _DLDI_readSectors_ptr(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }
 
 void FsIpcService::DldiWriteSectors(const fs_ipc_cmd_t* cmd) const
 {
     _DLDI_writeSectors_ptr(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }
 
 void FsIpcService::DsiSdReadSectors(const fs_ipc_cmd_t* cmd) const
 {
     sdmmc_sdcard_readsectors(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }
 
 void FsIpcService::DsiSdWriteSectors(const fs_ipc_cmd_t* cmd) const
 {
     sdmmc_sdcard_writesectors(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }
