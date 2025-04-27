@@ -1,0 +1,8 @@
+{
+    "runSettings": {
+        "jitPatchAddresses": [
+            "0x08000204",
+            "0x08000210"
+        ]
+    }
+}
