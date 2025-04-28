@@ -63,7 +63,7 @@ inline u16 packToRGB5(u8 r, u8 g, u8 b)
 }
 
 // Main Function
-static u16 applyColorCorrection(const u16 rgb5)
+inline u16 applyColorCorrection(u16 rgb5)
 {
     if (!gCurrentPreset) 
         return rgb5; // fallback
