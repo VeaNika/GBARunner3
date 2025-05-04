@@ -327,6 +327,20 @@ static void setupWramInstructionCache()
     mpu_setRegionInstructionCacheEnable(MPU_REGION_GBA_EWRAM, runSettings.enableWramInstructionCache);
 }
 
+
+static void setupMainRamInstructionCache()
+{
+    const auto& runSettings = gAppSettingsService.GetAppSettings().runSettings;
+    mpu_setRegionInstructionCacheEnable(MPU_REGION_GBA_M_RAM, runSettings.enableMainRamInstructionCache);
+}
+
+static void setupIWramDataCache()
+{
+    const auto& runSettings = gAppSettingsService.GetAppSettings().runSettings;
+    mpu_setRegionDataCacheEnable(MPU_REGION_GBA_IWRAM, runSettings.enableIWramDataCache);
+    mpu_setRegionDataBufferability(MPU_REGION_GBA_IWRAM, false);
+}
+
 static void setupEWramDataCache()
 {
     const auto& runSettings = gAppSettingsService.GetAppSettings().runSettings;
@@ -488,8 +502,10 @@ extern "C" void gbaRunnerMain(int argc, char* argv[])
     dc_flushRange(gGbaBios, sizeof(gGbaBios));
     ic_invalidateAll();
     setupWramInstructionCache();
+    setupMainRamInstructionCache();
+    setupIWramDataCache();
     setupEWramDataCache();
-
+  
     rtos_setIrqMask(RTOS_IRQ_VBLANK);
     rtos_ackIrqMask(~0u);
     REG_IME = 1;

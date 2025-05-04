@@ -29,7 +29,7 @@ extern "C" void setupMemoryProtection()
         .WithInstructionAccessPermission(MPU_ACCESS_PERMISSION_USER_READ_PRIV_WRITE)
         .WithDataCache()
         .WithInstructionCache()
-        .ApplyToRegion(MPU_REGION_3);
+        .ApplyToRegion(MPU_REGION_GBA_M_RAM);
 
     // mpu region 4: OBJ VRAM (DS)
     MemoryProtectionRegionBuilder(0x06400000, MPU_REGION_SIZE_32KB)
