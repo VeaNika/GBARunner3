@@ -303,10 +303,16 @@ static void applyGameJitPatches()
 }
 
 static void setupJit()
-{
+{   
     jit_init();
 
     const auto& runSettings = gAppSettingsService.GetAppSettings().runSettings;
+    if (!runSettings.enableJit)
+    {
+        jit_disable();
+        return;
+    }
+    
     if (runSettings.jitPatchAddresses && runSettings.jitPatchAddressCount > 0)
     {
         // manual jit patches
