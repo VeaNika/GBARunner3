@@ -1,8 +1,9 @@
 {
     "runSettings": {
+        "enableJit": true,
         "enableMainRamICache": true,
         "enableWramICache": true,
-        "enableWramDCache": true,
+        "enableWramDCache": false,
         "enableEwramDCache": true,
         "skipBiosIntro": false
     },
