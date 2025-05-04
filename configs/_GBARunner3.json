@@ -1,12 +1,15 @@
 {
     "runSettings": {
+        "enableMainRamICache": true,
         "enableWramICache": true,
+        "enableWramDCache": true,
         "enableEwramDCache": true,
         "skipBiosIntro": false
     },
     "displaySettings": {
         "gbaScreen": "top",
-        "gbaColorCorrection": "Agb001",
+        "gbaColorCorrection": "Oxy001",
+        "gbaDisplayGamma": 0,
         "gbaScreenBrightness": 16,
         "enableCenterAndMask": true,
         "centerOffsetX": 8,
