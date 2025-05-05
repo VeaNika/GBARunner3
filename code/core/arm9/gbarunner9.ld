@@ -235,7 +235,6 @@ SECTIONS
 		KEEP (VMUndefinedMsr.o(.itcm))
 		KEEP (JitArmUndefinedBx.o(.itcm))
 		KEEP (JitArmUndefinedLdrPcImm.o(.itcm))
-		KEEP (EmuIrqs.o(.itcm))
 		. = 0x3000;
 		KEEP (ThumbGetRn.o(.itcm))
 		*(.itcm)

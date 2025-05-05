@@ -33,3 +33,25 @@ arm_func emu_gbaSoundLoadSoundCntX
         andne r9, r9, #0xF // when master enable on
         orrne r9, r9, #0x80
     bx lr
+
+arm_func gbas_writeFifoA32
+    ldr r10,= gGbaSoundShared + 4 // r10 = &gGbaSoundShared.directChannels[0];
+    // interlock
+    ldrh r11, [r10, #34] // writeOffset
+    // interlock x2
+    str r9, [r10, r11, lsl #2]
+    add r11, r11, #1
+    and r11, r11, #7
+    strh r11, [r10, #34] // writeOffset = (writeOffset + 1) & 7
+    bx lr
+
+arm_func gbas_writeFifoB32
+    ldr r10,= gGbaSoundShared + 44 // r10 = &gGbaSoundShared.directChannels[1];
+    // interlock
+    ldrh r11, [r10, #34] // writeOffset
+    // interlock x2
+    str r9, [r10, r11, lsl #2]
+    add r11, r11, #1
+    and r11, r11, #7
+    strh r11, [r10, #34] // writeOffset = (writeOffset + 1) & 7
+    bx lr

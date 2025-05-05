@@ -105,6 +105,22 @@ arm_func dma_immTransferSafe32
     bne 1b
     pop {r4,r5,r8-r11,pc}
 
+arm_func dma_dma0Transfer
+    mov r0, #0
+    b dma_dmaTransfer
+
+arm_func dma_dma1Transfer
+    mov r0, #1
+    b dma_dmaTransfer
+
+arm_func dma_dma2Transfer
+    mov r0, #2
+    b dma_dmaTransfer
+
+arm_func dma_dma3Transfer
+    mov r0, #3
+    b dma_dmaTransfer
+
 .text
 
 // called from C code

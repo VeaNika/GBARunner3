@@ -29,6 +29,13 @@ updateDisplayCaptureVramD:
 
 checkSaveWrite:
     str r13, jumpToCaptureUpdate
+
+    // This is replaced by a nop when no vblank dma is in use
+.global emu_vblankDmaJumpInstruction
+emu_vblankDmaJumpInstruction:
+    b vblankDma
+
+    // This is replaced by a nop when save needs to be checked
 .global emu_vblankIrqSkipSaveCheckInstruction
 emu_vblankIrqSkipSaveCheckInstruction:
     b emu_vblankIrqReturn
@@ -48,6 +55,21 @@ emu_vblankIrqSkipSaveCheckInstruction:
 
 jumpToUpdateDisplayCaptureVramDInstruction:
     add pc, pc, #(updateDisplayCaptureVramD - jumpToCaptureUpdate - 8)
+
+vblankDma:
+    ldr sp,= dtcmIrqStackEnd
+    push {r0-r3,r12}
+#ifndef GBAR3_TEST
+    // These are replaced by nops when not active
+.global emu_vblankDmaJumpInstructions
+emu_vblankDmaJumpInstructions:
+    bl dma_dma0Transfer
+    bl dma_dma1Transfer
+    bl dma_dma2Transfer
+    bl dma_dma3Transfer
+#endif
+    pop {r0-r3,r12}
+    b emu_vblankIrqSkipSaveCheckInstruction
 
 .pool
 .end

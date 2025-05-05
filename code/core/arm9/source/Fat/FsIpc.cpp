@@ -27,9 +27,15 @@ extern "C"
 [[gnu::noinline]]
 u32 fs_waitForCompletion(FsWaitToken* waitToken, bool keepIrqsDisabled)
 {
-    u32 irqs = arm_disableIrqs();
+    u32 irqs;
+#ifdef GBAR3_IRQ_YIELDING
+    irqs = arm_disableIrqs();
+#endif
     while (true)
     {
+    #ifndef GBAR3_IRQ_YIELDING
+        irqs = arm_disableIrqs();
+    #endif
         if (waitToken && waitToken->transactionComplete)
         {
             break;
@@ -45,11 +51,15 @@ u32 fs_waitForCompletion(FsWaitToken* waitToken, bool keepIrqsDisabled)
             sCurrentWaitToken = nullptr;
             break;
         }
+    #ifdef GBAR3_IRQ_YIELDING
         if (!(irqs & 0x80) && !vm_yieldGbaIrqs())
         {
             arm_restoreIrqs(irqs);
             irqs = arm_disableIrqs();
         }
+    #else
+        arm_restoreIrqs(irqs);
+    #endif
     }
     if (!keepIrqsDisabled)
     {

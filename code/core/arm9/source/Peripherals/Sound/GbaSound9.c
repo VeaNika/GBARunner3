@@ -93,21 +93,11 @@ void gbas_writeSoundRegister(u32 address, u32 value, u32 length)
         {
             channel = &gGbaSoundShared.directChannels[0];
         }
-        if (__builtin_expect(length == 4, true))
-        {
-            writeFifo32(channel, value, 0xFFFFFFFF);
-        }
-        else
-        {
-            u32 mask;
-            if (length == 1)
-                mask = 0xFF;
-            else
-                mask = 0xFFFF;
-            mask <<= (address & 3) * 8;
-            value <<= (address & 3) * 8;
-            writeFifo32(channel, value, mask);
-        }
+        // Note that 32-bit is handled separately (the normal way these registers should be used)
+        u32 mask = length == 1 ? 0xFF : 0xFFFF;
+        mask <<= (address & 3) * 8;
+        value <<= (address & 3) * 8;
+        writeFifo32(channel, value, mask);
     }
     else if (address >= GBA_REG_OFFS_SOUND1CNT_L && address < GBA_REG_OFFS_DMA0SAD)
     {
@@ -158,7 +148,7 @@ void gbas_writeSoundRegister(u32 address, u32 value, u32 length)
                 {
                     resetFifo(&gGbaSoundShared.directChannels[0]);
                 }
-                
+
                 if (value & (GBA_SOUNDCNT_H_DIRECT_B_RESET >> 8))
                 {
                     resetFifo(&gGbaSoundShared.directChannels[1]);

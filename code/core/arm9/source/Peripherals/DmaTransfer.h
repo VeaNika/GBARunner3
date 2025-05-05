@@ -8,6 +8,8 @@ typedef struct
 
 #define DMA_FLAG_HBLANK(channel)    (1 << (channel))
 #define DMA_FLAG_HBLANK_MASK        (DMA_FLAG_HBLANK(0) | DMA_FLAG_HBLANK(1) | DMA_FLAG_HBLANK(2) | DMA_FLAG_HBLANK(3))
+#define DMA_FLAG_VBLANK(channel)    (1 << (channel + 4))
+#define DMA_FLAG_VBLANK_MASK        (DMA_FLAG_VBLANK(0) | DMA_FLAG_VBLANK(1) | DMA_FLAG_VBLANK(2) | DMA_FLAG_VBLANK(3))
 #define DMA_FLAG_SOUND(channel)     (1 << (channel + 8))
 #define DMA_FLAG_SOUND_MASK         (DMA_FLAG_SOUND(1) | DMA_FLAG_SOUND(2))
 

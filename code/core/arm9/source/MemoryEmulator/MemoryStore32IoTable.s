@@ -49,9 +49,9 @@
     .elseif (\index << 2) == GBA_REG_OFFS_WAVE_RAM3
         .short emu_gbaSoundStore32
     .elseif (\index << 2) == GBA_REG_OFFS_FIFO_A
-        .short emu_gbaSoundStore32
+        .short gbas_writeFifoA32
     .elseif (\index << 2) == GBA_REG_OFFS_FIFO_B
-        .short emu_gbaSoundStore32
+        .short gbas_writeFifoB32
     .elseif (\index << 2) == GBA_REG_OFFS_DMA0SAD
         .short emu_dmaInternalMemoryAddressStore32
     .elseif (\index << 2) == GBA_REG_OFFS_DMA0DAD

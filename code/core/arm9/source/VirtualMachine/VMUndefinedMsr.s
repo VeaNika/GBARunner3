@@ -22,6 +22,17 @@
         .endif
 .endm
 
+arm_func vm_armUndefinedMsrImm
+    and r8, lr, #0xF
+    and r10, lr, #0xF00
+    orr r8, r8, r10, lsr #4
+    and r10, lr, #0xF000
+    mov r10, r10, lsr #11
+    mov r8, r8, ror r10
+    tst lr, #0x400000
+    beq vm_updateCpsr
+    b vm_updateSpsr
+
 vm_updateCpsrHiReg:
     ldr r8, [sp, #-4]
 vm_updateCpsr:
@@ -60,7 +71,7 @@ vm_finishCpsrWithFlags:
     orr r10, r10, r8
     msr spsr, r10
     movs pc, lr
-    
+
 vm_finishCpsrOnlyControl:
     adr lr, vm_cpsrFinish
     b emu_updateIrqs
@@ -149,3 +160,9 @@ vm_armUndefinedMsrRegSpsrRmTable:
     .word vm_armUndefinedMsrRegSpsrR13
     .word vm_armUndefinedMsrRegSpsrR14
     .word vm_armUndefinedMsrRegSpsrR15
+
+.global vm_armUndefinedMsrImmTable
+vm_armUndefinedMsrImmTable:
+.rept 16
+    .word vm_armUndefinedMsrImm
+.endr

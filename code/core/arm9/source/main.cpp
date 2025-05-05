@@ -422,7 +422,7 @@ extern "C" void gbaRunnerMain(int argc, char* argv[])
     Environment::Initialize();
     setupLogger();
 
-    mem_setMainMemoryPriority(EXMEMCNT_MAIN_MEM_PRIO_ARM9);
+    mem_setMainMemoryPriority(EXMEMCNT_MAIN_MEM_PRIO_ARM7);
 
     startSplashScreenAnimation();
 

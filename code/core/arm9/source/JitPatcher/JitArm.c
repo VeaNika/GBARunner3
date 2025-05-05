@@ -48,6 +48,14 @@ bool jit_processArmInstruction(u32* ptr)
         // MSR reg
         *ptr = 0x1800090 | (instruction & 0xF04F000F) | ((instruction & 0x02000000) >> 5);
     }
+    else if ((instruction & 0x0FB0F000) == 0x0320F000)
+    {
+        // MSR imm
+        *ptr = 0x1900090
+            | (instruction & 0xF04F000F)
+            | ((instruction & 0x00000FF0) << 4)
+            | ((instruction & 0x02000000) >> 5);
+    }
     else if ((instruction & 0x0FFFFFF0) == 0x012FFF10)
     {
         // BX

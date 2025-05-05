@@ -20,25 +20,21 @@ arm_func emu_hblankIrq
     bichs r4, r4, #2 // HBLANK IRQ
 
     cmp lr, #160
+    // This is replaced by a b instruction when no hblank dma is in use
+.global emu_hblankDmaSkipInstruction
+emu_hblankDmaSkipInstruction:
     bge emu_hblankIrqReturn
 
     ldr sp,= dtcmIrqStackEnd
-    push {r0-r3,r4,r5,r12}
+    push {r0-r3,r12}
 #ifndef GBAR3_TEST
-    ldr r5,= dma_state
-    ldr r4, [r5] // dmaFlags
-    tst r4, #1
-        movne r0, #0
-        blne dma_dmaTransfer
-    tst r4, #2
-        movne r0, #1
-        blne dma_dmaTransfer
-    tst r4, #4
-        movne r0, #2
-        blne dma_dmaTransfer
-    tst r4, #8
-        movne r0, #3
-        blne dma_dmaTransfer
+    // These are replaced by nops when not active
+.global emu_hblankDmaJumpInstructions
+emu_hblankDmaJumpInstructions:
+    bl dma_dma0Transfer
+    bl dma_dma1Transfer
+    bl dma_dma2Transfer
+    bl dma_dma3Transfer
 #endif
-    pop {r0-r3,r4,r5,r12}
+    pop {r0-r3,r12}
     b emu_hblankIrqReturn

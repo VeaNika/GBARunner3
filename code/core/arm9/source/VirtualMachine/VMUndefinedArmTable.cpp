@@ -5,6 +5,7 @@
 
 extern const void* vm_armUndefinedMsrRegSpsrRmTable[16];
 extern const void* vm_armUndefinedMsrRegCpsrRmTable[16];
+extern const void* vm_armUndefinedMsrImmTable[16];
 extern const void* vm_armUndefinedMrsSpsrRmTable[16];
 extern const void* vm_armUndefinedMrsCpsrRmTable[16];
 extern const void* jit_armUndefinedBxRmTable[16];
@@ -38,8 +39,7 @@ void vm_initializeUndefinedArmTable()
             // MSR
             if (h == 1)
             {
-                // setTableEntry(index, vm_armUndefinedMsrImm\f)
-                setTableEntry(index, nullptr);
+                setTableEntry(index, vm_armUndefinedMsrImmTable);
             }
             else
             {

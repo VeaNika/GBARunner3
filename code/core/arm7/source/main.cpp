@@ -20,6 +20,7 @@
 #include "Arm7State.h"
 #include "ExitMode.h"
 #include "FramerateAdjustment.h"
+#include "mmc/tmio.h"
 
 static FsIpcService sFsIpcService;
 static GbaSoundIpcService sGbaSoundIpcService;
@@ -110,6 +111,11 @@ static void initializeArm7()
     sio_setGpioSiIrq(false);
     sio_setGpioMode(RCNT0_L_MODE_GPIO);
 
+    if (isDSiMode())
+    {
+        TMIO_init();
+    }
+    
     initializeIpcServices();
 
     snd_setMasterVolume(127);
