@@ -4,7 +4,7 @@
 
 // Based on https://gist.github.com/profi200/bfa7be60b3eecb8c43f59000f626c743
 
-u16 gColorLut[COLOR_LUT_SIZE]; // Dinamically generated color LUT
+u16 gColorLut[COLOR_LUT_SIZE] __attribute__((section(".lutram")));
 
 const ColorProfile* gCurrentPreset = &Agb001; // Initialize the color matrix preset, default is AGB_001
 
