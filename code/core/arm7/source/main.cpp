@@ -16,6 +16,7 @@
 #include "IpcServices/GbaSoundIpcService.h"
 #include "IpcServices/SystemIpcService.h"
 #include "IpcServices/GbaSaveIpcService.h"
+#include "IpcServices/RtcIpcService.h"
 #include "Arm7State.h"
 #include "ExitMode.h"
 #include "FramerateAdjustment.h"
@@ -25,6 +26,7 @@ static FsIpcService sFsIpcService;
 static GbaSoundIpcService sGbaSoundIpcService;
 static SystemIpcService sSystemIpcService;
 static GbaSaveIpcService sGbaSaveIpcService;
+static RtcIpcService sRtcIpcService;
 static rtos_event_t sVBlankEvent;
 static volatile u8 sMcuIrqFlag = false;
 static Arm7State sState;
@@ -77,6 +79,7 @@ static void initializeIpcServices()
     sGbaSoundIpcService.Start();
     sSystemIpcService.Start();
     sGbaSaveIpcService.Start();
+    sRtcIpcService.Start();
 }
 
 static void initializeVBlankIrq()
@@ -198,6 +201,6 @@ int main()
         rtos_waitEvent(&sVBlankEvent, true, true);
         updateArm7();
     }
-    
+
     return 0;
 }
