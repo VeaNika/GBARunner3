@@ -1,6 +1,6 @@
 #pragma once
 #include "ThreadIpcService.h"
-#include "ipcChannels.h"
+#include "IpcChannels.h"
 
 class RtcIpcService : public ThreadIpcService
 {
