@@ -32,7 +32,7 @@
 #include "Application/Settings/AppSettingsService.h"
 #include "GbaHeader.h"
 #include "MemoryEmulator/MemoryLoadStore.h"
-#include "ColorLut.h"
+#include "GbaColorCorrection/ColorLut.h"
 #include "MemoryProtectionConfiguration.h"
 #include "MemoryProtectionUnit.h"
 #include "MemoryEmulator/RomDefs.h"

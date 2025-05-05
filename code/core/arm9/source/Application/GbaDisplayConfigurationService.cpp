@@ -6,7 +6,8 @@
 #include <libtwl/gfx/gfxBackground.h>
 #include <libtwl/sys/sysPower.h>
 #include "DsDefinitions.h"
-#include "ColorLut.h"
+#include "GbaColorCorrection/ColorLut.h"
+#include "GbaColorCorrection/GammaLut.h"
 #include "SystemIpc.h"
 #include "GbaDisplayConfigurationService.h"
 
@@ -125,10 +126,17 @@ void GbaDisplayConfigurationService::SetupGbaScreen(const DisplaySettings& displ
 
 void GbaDisplayConfigurationService::SetupColorCorrection(const DisplaySettings& displaySettings)
 {
-    if (displaySettings.gbaColorCorrection == GbaColorCorrection::None)
-    {
-        clut_disableColorCorrection();
-    }
+    const auto getEnum = displaySettings.gbaColorCorrection;
+        const ColorProfile* profile = colorProfileLut[static_cast<size_t>(getEnum)];
+        if (profile)
+            clut_initColorCorrection(profile);
+        else
+            clut_disableColorCorrection();
+}
+
+void GbaDisplayConfigurationService::SetupDisplayGamma(const DisplaySettings& displaySettings)
+{
+    setDisplayGammaIndex(displaySettings.gbaDisplayGamma);
 }
 
 void GbaDisplayConfigurationService::SetupGbaScreenBrightness(const DisplaySettings& displaySettings)
@@ -148,6 +156,7 @@ void GbaDisplayConfigurationService::SetupGbaScreenBrightness(const DisplaySetti
 void GbaDisplayConfigurationService::ApplyDisplaySettings(const DisplaySettings& displaySettings)
 {
     SetupGbaScreen(displaySettings);
+    SetupDisplayGamma(displaySettings);
     SetupColorCorrection(displaySettings);
     SetupGbaScreenBrightness(displaySettings);
 }

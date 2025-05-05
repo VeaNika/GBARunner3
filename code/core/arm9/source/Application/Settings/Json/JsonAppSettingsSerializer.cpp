@@ -11,6 +11,7 @@
 #define KEY_DISPLAY_SETTINGS                        "displaySettings"
 #define KEY_DISPLAY_SETTINGS_GBA_SCREEN             "gbaScreen"
 #define KEY_DISPLAY_SETTINGS_GBA_COLOR_CORRECTION   "gbaColorCorrection"
+#define KEY_DISPLAY_SETTINGS_GBA_DISPLAY_GAMMA      "gbaDisplayGamma"
 #define KEY_DISPLAY_SETTINGS_GBA_SCREEN_BRIGHTNESS  "gbaScreenBrightness"
 #define KEY_DISPLAY_SETTINGS_ENABLE_CENTER_AND_MASK "enableCenterAndMask"
 #define KEY_DISPLAY_SETTINGS_CENTER_OFFSET_X        "centerOffsetX"
@@ -34,6 +35,16 @@
 
 #define ENUM_STRING_GBA_COLOR_CORRECTION_NONE       "none"
 #define ENUM_STRING_GBA_COLOR_CORRECTION_AGB_001    "agb001"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_AGS_101    "ags101"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_OXY_001    "oxy001"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_NTR_001    "ntr001"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_USG_001    "usg001"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_PSP_01G    "psp01g"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_NSO_IPS    "nswIps"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_NSO_OLED   "nswOle"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_VBA        "vbaEmu"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_NOCASH     "noCash"
+#define ENUM_STRING_GBA_COLOR_CORRECTION_MGBA       "mGba01"
 
 #define ENUM_STRING_GBA_BORDER_IMAGE_NONE           "none"
 #define ENUM_STRING_GBA_BORDER_IMAGE_DEFAULT        "default"
@@ -66,6 +77,26 @@ static bool tryParseGbaColorCorrection(const char* gbaColorCorrectionString, Gba
         gbaColorCorrection = GbaColorCorrection::None;
     else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_AGB_001))
         gbaColorCorrection = GbaColorCorrection::Agb001;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_AGS_101))
+        gbaColorCorrection = GbaColorCorrection::Ags101;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_OXY_001))
+        gbaColorCorrection = GbaColorCorrection::Oxy001;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_NTR_001))
+        gbaColorCorrection = GbaColorCorrection::Ntr001;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_USG_001))
+        gbaColorCorrection = GbaColorCorrection::Usg001;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_PSP_01G))
+        gbaColorCorrection = GbaColorCorrection::PspO1g;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_NSO_IPS))
+        gbaColorCorrection = GbaColorCorrection::NswIps;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_NSO_OLED))
+        gbaColorCorrection = GbaColorCorrection::NswOle;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_VBA))
+        gbaColorCorrection = GbaColorCorrection::VbaEmu;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_NOCASH))
+        gbaColorCorrection = GbaColorCorrection::NoCash;
+    else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_MGBA))
+        gbaColorCorrection = GbaColorCorrection::mGba01;
     else
         return false;
 
@@ -116,6 +147,11 @@ static void readDisplaySettings(const JsonObjectConst& json, DisplaySettings& di
 
     tryParseGbaScreen(json[KEY_DISPLAY_SETTINGS_GBA_SCREEN], displaySettings.gbaScreen);
     tryParseGbaColorCorrection(json[KEY_DISPLAY_SETTINGS_GBA_COLOR_CORRECTION], displaySettings.gbaColorCorrection);
+    if (json[KEY_DISPLAY_SETTINGS_GBA_DISPLAY_GAMMA].is<int>())
+    {
+        displaySettings.gbaDisplayGamma = std::clamp(json[KEY_DISPLAY_SETTINGS_GBA_DISPLAY_GAMMA].as<int>(),
+            DISPLAY_SETTINGS_GBA_DISPLAY_GAMMA_MIN, DISPLAY_SETTINGS_GBA_DISPLAY_GAMMA_MAX);
+    }
     if (json[KEY_DISPLAY_SETTINGS_GBA_SCREEN_BRIGHTNESS].is<int>())
     {
         displaySettings.gbaScreenBrightness = std::clamp(json[KEY_DISPLAY_SETTINGS_GBA_SCREEN_BRIGHTNESS].as<int>(),
