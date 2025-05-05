@@ -1,4 +1,5 @@
 build
+out
 .vs/
 .vscode/
 *.nds
@@ -8,4 +9,5 @@ build
 *.elf
 *.map
 *.bin
+!code/bootstrap/icon.bin
 code/bootstrap/nitrofiles

@@ -1,0 +1,22 @@
+{
+    "runSettings": {
+        "enableJit": true,
+        "enableMainRamICache": true,
+        "enableWramICache": true,
+        "enableWramDCache": false,
+        "enableEwramDCache": true,
+        "skipBiosIntro": false
+    },
+    "displaySettings": {
+        "gbaScreen": "top",
+        "gbaColorCorrection": "Oxy001",
+        "gbaDisplayGamma": 0,
+        "gbaScreenBrightness": 16,
+        "enableCenterAndMask": true,
+        "centerOffsetX": 8,
+        "centerOffsetY": 16,
+        "maskWidth": 240,
+        "maskHeight": 160,
+        "borderImage": "default"
+    } 
+}

@@ -21,8 +21,11 @@
 #define KEY_DISPLAY_SETTINGS_BORDER_IMAGE           "borderImage"
 
 #define KEY_RUN_SETTINGS                                    "runSettings"
+#define KEY_RUN_SETTINGS_ENABLE_JIT                         "enableJit"
 #define KEY_RUN_SETTINGS_JIT_PATCH_ADDRESSES                "jitPatchAddresses"
+#define KEY_RUN_SETTINGS_ENABLE_MAIN_RAM_ICACHE             "enableMainRamICache"
 #define KEY_RUN_SETTINGS_ENABLE_WRAM_ICACHE                 "enableWramICache"
+#define KEY_RUN_SETTINGS_ENABLE_IWRAM_DCACHE                "enableWramDCache"
 #define KEY_RUN_SETTINGS_ENABLE_EWRAM_DCACHE                "enableEWramDCache"
 #define KEY_RUN_SETTINGS_SELF_MODIFYING_PATCH_ADDRESSES     "selfModifyingPatchAddresses"
 #define KEY_RUN_SETTINGS_SKIP_BIOS_INTRO                    "skipBiosIntro"
@@ -230,9 +233,11 @@ static void readRunSettings(const JsonObjectConst& json, RunSettings& runSetting
 {
     if (json.isNull())
         return;
-
     tryParseJitPatchAddresses(json[KEY_RUN_SETTINGS_JIT_PATCH_ADDRESSES], runSettings);
+    readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_JIT], runSettings.enableJit);
+    readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_MAIN_RAM_ICACHE], runSettings.enableMainRamInstructionCache);
     readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_WRAM_ICACHE], runSettings.enableWramInstructionCache);
+    readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_IWRAM_DCACHE], runSettings.enableIWramDataCache);
     readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_EWRAM_DCACHE], runSettings.enableEWramDataCache);
     tryParseSelfModifyingPatchAddresses(json[KEY_RUN_SETTINGS_SELF_MODIFYING_PATCH_ADDRESSES], runSettings);
     readBoolSetting(json[KEY_RUN_SETTINGS_SKIP_BIOS_INTRO], runSettings.skipBiosIntro);
