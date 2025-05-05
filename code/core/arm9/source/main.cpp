@@ -306,7 +306,7 @@ static void applyGameJitPatches()
 }
 
 static void setupJit()
-{   
+{
     jit_init();
 
     const auto& runSettings = gAppSettingsService.GetAppSettings().runSettings;
