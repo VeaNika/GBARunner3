@@ -62,7 +62,7 @@ uint8_t rumbleGetMaxRawStrength(void);
 ///     The raw rumble strength (rumbleGetMaxRawStrength()).
 ///
 /// @see rumbleIsEdgeActivated
-void setRumble(uint8_t rawStrength);
+void doRumble(uint8_t rawStrength);
 #define RUMBLE_STRENGTH_HIGHEST 0xFF
 
 /// Emit a single, fast rumble tick.
@@ -71,8 +71,8 @@ void setRumble(uint8_t rawStrength);
 ///     The raw rumble strength (rumbleGetMaxRawStrength()).
 static inline void rumbleTick(uint8_t rawStrength)
 {
-    setRumble(rawStrength);
-    setRumble(0);
+    doRumble(rawStrength);
+    doRumble(0);
 }
 
 #ifdef __cplusplus

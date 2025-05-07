@@ -36,7 +36,7 @@ bool rumbleIsEdgeActivated(void)
 extern void __libnds_slot2EzCommand(uint32_t address, uint16_t value);
 static const uint8_t ez_rumble_table[] = {0x08, 0xF0, 0xF2, 0xF1};
 
-void setRumble(uint8_t strength)
+void doRumble(uint8_t strength)
 {
     uint32_t mask = peripheralSlot2GetSupportMask();
     peripheralSlot2Open(SLOT2_PERIPHERAL_RUMBLE_ANY);
