@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version by the GBARunner3 project.
 //
 // Copyright (C) 2023 Adrian "asie" Siekierka
+
+// TODO: Replace this header with the official BlocksDS version once the project is ported.
 
 #ifndef LIBNDS_NDS_ARM9_RUMBLE_H__
 #define LIBNDS_NDS_ARM9_RUMBLE_H__

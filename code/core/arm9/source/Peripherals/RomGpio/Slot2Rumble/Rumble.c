@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Zlib
+// SPDX-FileNotice: Modified from the original version by the GBARunner3 project.
 //
 // Copyright (c) 2023 Adrian "asie" Siekierka
+
+// TODO: Replace this header with the official BlocksDS version once the project is ported.
 
 #include <nds/ndstypes.h>
 #include <nds/memory.h>
