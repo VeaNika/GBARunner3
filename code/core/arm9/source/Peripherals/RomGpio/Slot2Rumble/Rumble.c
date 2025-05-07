@@ -6,9 +6,8 @@
 // TODO: Replace this header with the official BlocksDS version once the project is ported.
 
 #include <nds/ndstypes.h>
-#include <nds/memory.h>
 #include <nds/system.h>
-#include <nds/arm9/rumble.h>
+#include "Rumble.h"
 
 bool isRumbleInserted(void)
 {

@@ -19,7 +19,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <nds/arm9/peripherals/slot2.h>
+#include "slot2.h"
 
 /// Initialize the rumble device.
 ///

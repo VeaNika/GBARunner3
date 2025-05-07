@@ -8,17 +8,15 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <nds/ndstypes.h>
-#include <nds/memory.h>
 #include <nds/system.h>
 #include <libtwl/mem/memExtern.h>
 #include "Slot2.h"
 
 // Types
 
-#define SLOT2_EXMEMCNT_4_2 (EXMEMCNT_ROM_TIME1_10_CYCLES | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
-#define SLOT2_EXMEMCNT_3_1 (EXMEMCNT_ROM_TIME1_8_CYCLES | EXMEMCNT_ROM_TIME2_4_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
-#define SLOT2_EXMEMCNT_2_1 (EXMEMCNT_ROM_TIME1_6_CYCLES | EXMEMCNT_ROM_TIME2_4_CYCLES | EXMEMCNT_SRAM_TIME_18_CYCLES)
+#define SLOT2_EXMEMCNT_4_2 (EXMEMCNT_SLOT2_ROM_WAIT1_10 | EXMEMCNT_SLOT2_ROM_WAIT2_6 | EXMEMCNT_SLOT2_RAM_WAIT_18)
+#define SLOT2_EXMEMCNT_3_1 (EXMEMCNT_SLOT2_ROM_WAIT1_8 | EXMEMCNT_SLOT2_ROM_WAIT2_4 | EXMEMCNT_SLOT2_RAM_WAIT_18)
+#define SLOT2_EXMEMCNT_2_1 (EXMEMCNT_SLOT2_ROM_WAIT1_6 | EXMEMCNT_SLOT2_ROM_WAIT2_4 | EXMEMCNT_SLOT2_RAM_WAIT_18)
 
 typedef struct
 {
@@ -427,7 +425,7 @@ static slot2_definition_t definitions[] =
     {
         0,
         SLOT2_PERIPHERAL_PADDLE,
-        SLOT2_EXMEMCNT_4_2 | EXMEMCNT_PHI_CLOCK_4MHZ,
+        SLOT2_EXMEMCNT_4_2 | EXMEMCNT_SLOT2_PHI_4_19_MHZ,
         0,
         paddleIsInserted,
         none_unlock
@@ -454,7 +452,7 @@ static slot2_definition_t definitions[] =
     {
         0,
         SLOT2_PERIPHERAL_GUITAR_GRIP,
-        EXMEMCNT_ROM_TIME1_18_CYCLES | EXMEMCNT_ROM_TIME2_6_CYCLES | EXMEMCNT_SRAM_TIME_10_CYCLES | EXMEMCNT_PHI_CLOCK_OFF,
+        EXMEMCNT_SLOT2_ROM_WAIT1_18 | EXMEMCNT_SLOT2_ROM_WAIT1_6 | EXMEMCNT_SLOT2_RAM_WAIT_10 | EXMEMCNT_SLOT2_PHI_LOW,
         0,
         guitarGripIsInserted,
         none_unlock
@@ -508,7 +506,7 @@ static slot2_definition_t definitions[] =
     {
         0x4a50484b, // "KHPJ"
         SLOT2_PERIPHERAL_TILT,
-        SLOT2_EXMEMCNT_3_1 | EXMEMCNT_PHI_CLOCK_4MHZ,
+        SLOT2_EXMEMCNT_3_1 | EXMEMCNT_SLOT2_PHI_4_19_MHZ,
         0,
         none_detect,
         none_unlock
@@ -517,7 +515,7 @@ static slot2_definition_t definitions[] =
     {
         0x0047594b, // "KYG_"
         SLOT2_PERIPHERAL_TILT,
-        SLOT2_EXMEMCNT_3_1 | EXMEMCNT_PHI_CLOCK_4MHZ,
+        SLOT2_EXMEMCNT_3_1 | EXMEMCNT_SLOT2_PHI_4_19_MHZ,
         0,
         none_detect,
         none_unlock
