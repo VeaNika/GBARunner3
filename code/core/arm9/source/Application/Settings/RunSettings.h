@@ -17,8 +17,8 @@ public:
     /// @brief Specifies whether the instruction cache should be enabled on iwram and ewram.
     bool16 enableWramInstructionCache = true;
 
-    /// @brief Specifies whether the instruction cache should be enabled on main ram.
-    bool16 enableMainRamInstructionCache = true;
+    /// @brief Specifies whether the instruction cache should be enabled on the part of the rom loaded in main memory.
+    bool16 enableRomInstructionCache = true;
 
     /// @brief Specifies whether the data cache should be enabled on ewram.
     bool16 enableEWramDataCache = true;
