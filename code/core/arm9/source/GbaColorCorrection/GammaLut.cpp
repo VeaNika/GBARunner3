@@ -7,12 +7,12 @@
 constexpr int GAMMA_TABLE_SIZE = 256;
 constexpr int GAMMA_STEPS = 5; // Min 1, Max 5. Default 5
 
-constexpr float TARGET_GAMMA = 2.f; // Default 2.2f
-constexpr float DARKEN_SCREEN = 0.5f; // Default 0.5f
+constexpr float TARGET_GAMMA = 2.0; // Default 2.0
+constexpr float DARKEN_SCREEN = 0; // Default 0.0
 
 // [DISPLAY_GAMMA] Display Gamma range can be modified from 0.0f ~ 2.2f, 5 steps max
-constexpr float GAMMA_MIN = 0.5f; // default 0.5f
-constexpr float GAMMA_MAX = 0.9f; // default 0.9f
+constexpr float GAMMA_MIN = 0.5; // default 0.5
+constexpr float GAMMA_MAX = 0.9; // default 0.9
 constexpr float GAMMA_STEP = (GAMMA_MAX - GAMMA_MIN) / (GAMMA_STEPS - 1);
 
 // Lambda LUT generators based from this example https://stackoverflow.com/a/62699172
@@ -23,8 +23,8 @@ constexpr std::array<u8, GAMMA_TABLE_SIZE> gamma_encode_table = []
     std::array<u8, GAMMA_TABLE_SIZE> table = {};
     for (int i = 0; i < GAMMA_TABLE_SIZE; ++i) 
     {
-        float x = static_cast<float>(i) / 255.0f;
-        table[i] = static_cast<u8>(std::clamp(std::pow(x, TARGET_GAMMA + DARKEN_SCREEN) * 255.0f, 0.0f, 255.0f));
+        double x = static_cast<double>(i) / 255.0;
+        table[i] = static_cast<u8>(std::clamp(std::pow(x, TARGET_GAMMA + DARKEN_SCREEN) * 255.0, 0.0, 255.0));
     }
     return table;
 }();
@@ -35,11 +35,11 @@ constexpr std::array<std::array<u8, GAMMA_TABLE_SIZE>, GAMMA_STEPS> precomputed_
     std::array<std::array<u8, GAMMA_TABLE_SIZE>, GAMMA_STEPS> tables = {};
     for (int g = 0; g < GAMMA_STEPS; ++g) 
     {
-        float gamma = GAMMA_MIN + GAMMA_STEP * g;
+        double gamma = GAMMA_MIN + GAMMA_STEP * g;
         for (int i = 0; i < GAMMA_TABLE_SIZE; ++i) 
         {
-            float x = static_cast<float>(i) / 255.0f;
-            tables[g][i] = static_cast<u8>(std::clamp(std::pow(x, gamma) * 255.0f, 0.0f, 255.0f));
+            double x = static_cast<double>(i) / 255.0;
+            tables[g][i] = static_cast<u8>(std::clamp(std::pow(x, gamma) * 255.0, 0.0, 255.0));
         }
     }
     return tables;
@@ -47,6 +47,7 @@ constexpr std::array<std::array<u8, GAMMA_TABLE_SIZE>, GAMMA_STEPS> precomputed_
 
 // Runtime table pointer, default is Gamma Step 0 = 0.5
 inline const u8* gamma_decode_table = precomputed_decode_tables[0].data();
+
 // Assign gamma from precomputed gamma decode tables:
 // Index 0 = gamma 0.5f,
 // Index 1 = gamma 0.6f,

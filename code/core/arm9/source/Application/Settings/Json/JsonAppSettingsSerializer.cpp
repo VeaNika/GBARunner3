@@ -89,7 +89,7 @@ static bool tryParseGbaColorCorrection(const char* gbaColorCorrectionString, Gba
     else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_USG_001))
         gbaColorCorrection = GbaColorCorrection::Usg001;
     else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_PSP_01G))
-        gbaColorCorrection = GbaColorCorrection::PspO1g;
+        gbaColorCorrection = GbaColorCorrection::Psp01g;
     else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_NSO_IPS))
         gbaColorCorrection = GbaColorCorrection::NswIps;
     else if (!strcasecmp(gbaColorCorrectionString, ENUM_STRING_GBA_COLOR_CORRECTION_NSO_OLED))
