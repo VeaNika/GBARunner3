@@ -1,14 +1,15 @@
 #pragma once
-#include "ColorLut.h"
+#include "Core/Math/fixed.h"
 
 struct ColorProfile
 {
-    int matrix[3][3]; // coeficients multiplied by 1000
-    int luminance;    // multiplier *100, i.g. 93
+    fix32<12> matrix[3][3]; // 3x3 correction matrix
+    fix32<12> luminance;    // Luminance factor
 };
 
-// libretro shader values. Credits: hunterk and Pokefan531.
-// Last updated 2025-12-03.
+// Libretro shader values. Credits: hunterk and Pokefan531.
+// https://forums.libretro.com/t/real-gba-and-ds-phat-colors/1540/238
+// Last updated 10-05-2025.
 
 // const ColorProfile PRESET_NAME = 
 //{
@@ -21,124 +22,124 @@ struct ColorProfile
 //};
 
 // libretro GBA AGB-001 color (sRGB).
-constexpr inline ColorProfile Agb001 =
+const ColorProfile Agb001 =
 {
     {
-        { 905, 195, -100 },
-        { 100, 650, 250 },
-        { 158, 143, 700 }
+        { fix32<12>(0.905f), fix32<12>(0.195f), fix32<12>(-0.1f) },
+        { fix32<12>(0.1f), fix32<12>(0.65f), fix32<12>(0.25f) },
+        { fix32<12>(0.1575f), fix32<12>(0.1425f), fix32<12>(0.7f) }
     },
-    91
+    fix32<12>(0.91f)
 };
 
 // libretro GBA SP (AGS-101) color (sRGB).
-constexpr inline ColorProfile Ags101 =
+const ColorProfile Ags101 =
 {
     {
-        { 960, 110, -70 },
-        { 33, 890, 78 },
-        { 1, -30, 1029 }
+        { fix32<12>(0.96f), fix32<12>(0.11f), fix32<12>(-0.07f) },
+        { fix32<12>(0.0325f), fix32<12>(0.89f), fix32<12>(0.0775f) },
+        { fix32<12>(0.001f), fix32<12>(-0.03f), fix32<12>(1.029f) }
     },
-    94
+    fix32<12>(0.935f)
 };
 
 // libretro GB micro OXY-001 color (sRGB).
-constexpr inline ColorProfile Oxy001 =
+const ColorProfile Oxy001 =
 {
     {
-        { 803, 310, -113 },
-        { 100, 688, 213 },
-        { 123, 113, 765 }
+        { fix32<12>(0.8025f), fix32<12>(0.31f), fix32<12>(-0.1125f) },
+        { fix32<12>(0.1f), fix32<12>(0.6875f), fix32<12>(0.2125f) },
+        { fix32<12>(0.1225f), fix32<12>(0.1125f), fix32<12>(0.765f) }
     },
-    90
+    fix32<12>(0.9f)
 };
 
 //// libretro NDS Phat NTR-001 color (sRGB).
-constexpr inline ColorProfile Ntr001 =
+const ColorProfile Ntr001 =
 {
     {
-        { 835, 270, -105 },
-        { 100, 638, 263 },
-        { 105, 175, 720 }
+        { fix32<12>(0.835f), fix32<12>(0.27f), fix32<12>(-0.105f) },
+        { fix32<12>(0.1f), fix32<12>(0.6375f), fix32<12>(0.2625f) },
+        { fix32<12>(0.105f), fix32<12>(0.175f), fix32<12>(0.72f) }
     },
-    91
+    fix32<12>(0.905f)
 };
 
 // libretro NDS lite USG-001 color (sRGB).
-constexpr inline ColorProfile Usg001 =
+const ColorProfile Usg001 =
 {
     {
-        { 930, 140, -70 },
-        { 25, 900, 75 },
-        { 8, -30, 1022 }
+        { fix32<12>(0.93f), fix32<12>(0.14f), fix32<12>(-0.07f) },
+        { fix32<12>(0.025f), fix32<12>(0.9f), fix32<12>(0.075f) },
+        { fix32<12>(0.008f), fix32<12>(-0.03f), fix32<12>(1.022f) }
     },
-    94
+    fix32<12>(0.935f)
 };
 
 // libretro PSP 1000 color (sRGB).
-constexpr inline ColorProfile PspO1g =
+const ColorProfile Psp01g =
 {
     {
-        { 835, 160, -130 },
-        { 43, 745, 155 },
-        { 23, 15, 963 }
+        { fix32<12>(0.835f), fix32<12>(0.155f), fix32<12>(-0.135f) },
+        { fix32<12>(0.0425f), fix32<12>(0.745f), fix32<12>(0.155f) },
+        { fix32<12>(0.0225f), fix32<12>(0.0145f), fix32<12>(0.963f) }
     },
-    99
+    fix32<12>(0.99f)
 };
 
 // libretro Nintendo Switch GBA Classics color (sRGB).
-constexpr inline ColorProfile NswIps =
+const ColorProfile NswIps =
 {
     {
-        { 865, 123, 13 },
-        { 58, 925, 13 },
-        { 58, 123, 820 }
+        { fix32<12>(0.865f), fix32<12>(0.1225f), fix32<12>(0.0125f) },
+        { fix32<12>(0.0575f), fix32<12>(0.925f), fix32<12>(0.0125f) },
+        { fix32<12>(0.0575f), fix32<12>(0.1225f), fix32<12>(0.82f) }
     },
-    100
+    fix32<12>(1.f)
 };
 
 // libretro Nintendo Switch GBA Classics Oled color (sRGB).
-constexpr inline ColorProfile NswOle =
+const ColorProfile NswOle =
 {
     {
-        { 1540, -480, -60 },
-        { -45, 1063, -18 },
-        { -23, -75, 1103 }
+        { fix32<12>(1.54f), fix32<12>(-0.48f), fix32<12>(-0.06f) },
+        { fix32<12>(-0.045f), fix32<12>(1.0625f), fix32<12>(-0.0175f) },
+        { fix32<12>(-0.0225f), fix32<12>(-0.075f), fix32<12>(1.1025f) }
     },
-    100
+    fix32<12>(1.f)
 };
 
 // libretro Visual Boy Advance color.
-constexpr inline ColorProfile VbaEmu =
+const ColorProfile VbaEmu =
 {
     {
-        { 730, 270, 0 },
-        { 85, 675, 240 },
-        { 85, 240, 675 }
+        { fix32<12>(0.73f), fix32<12>(0.27f), fix32<12>(0.f) },
+        { fix32<12>(0.0825f), fix32<12>(0.6775f), fix32<12>(0.24f) },
+        { fix32<12>(0.0825f), fix32<12>(0.24f), fix32<12>(0.6775f) }
     },
-    100
+    fix32<12>(1.f)
 };
 
 // libretro No$GBA full color.
-constexpr inline ColorProfile NoCash =
+const ColorProfile NoCash =
 {
     {
-        { 730, 270, 0 },
-        { 83, 678, 240 },
-        { 83, 240, 678 }
+        { fix32<12>(0.62f), fix32<12>(0.1913f), fix32<12>(-0.0917f) },
+        { fix32<12>(0.004f), fix32<12>(0.56f), fix32<12>(0.167f) },
+        { fix32<12>(0.004f), fix32<12>(0.167f), fix32<12>(0.56f) },
     },
-    100
+    fix32<12>(0.649f)
 };
 
 // libretro mGBA GBA shader color.
-constexpr inline ColorProfile mGba01 =
+const ColorProfile mGba01 =
 {
     {
-        { 840, 180, 0 },
-        { 90, 670, 260 },
-        { 150, 100, 730 }
+        { fix32<12>(0.84f), fix32<12>(0.18f), fix32<12>(0.f) },
+        { fix32<12>(0.09f), fix32<12>(0.67f), fix32<12>(0.26f) },
+        { fix32<12>(0.15f), fix32<12>(0.10f), fix32<12>(0.73f) }
     },
-    99
+    fix32<12>(0.99f)
 };
 
 constexpr const ColorProfile* colorProfileLut[] =
@@ -149,7 +150,7 @@ constexpr const ColorProfile* colorProfileLut[] =
     /* GbaColorCorrection::Oxy001   */ &Oxy001,
     /* GbaColorCorrection::Ntr001   */ &Ntr001,
     /* GbaColorCorrection::Usg001   */ &Usg001,
-    /* GbaColorCorrection::PspO1g   */ &PspO1g,
+    /* GbaColorCorrection::Psp01g   */ &Psp01g,
     /* GbaColorCorrection::NswIps   */ &NswIps,
     /* GbaColorCorrection::NswOle   */ &NswOle,
     /* GbaColorCorrection::VbaEmu   */ &VbaEmu,

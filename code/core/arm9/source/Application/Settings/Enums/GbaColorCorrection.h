@@ -22,7 +22,7 @@ enum class GbaColorCorrection
     Usg001,
 
     /// @brief Color correction is applied that resembles the PSP-01g screen.
-    PspO1g,
+    Psp01g,
 
     /// @brief Color correction is applied that resembles the Nintendo Switch Classics GBA shader.
     NswIps,
