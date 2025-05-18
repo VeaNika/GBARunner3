@@ -26,6 +26,9 @@ public:
     /// @brief Specifies whether the data cache should be enabled on iwram.
     bool16 enableIWramDataCache = false;
 
+    /// @brief Specifies whether the Arm9 CPU clockspeed is forced to 67MHz in DSi mode.
+    bool16 forceDSModeArm9ClockSpeed = false;
+
     /// @brief Specifies the rom addresses of instructions that perform a self-modifying write and that should be patched.
     std::unique_ptr<u32[]> selfModifyingPatchAddresses;
 
