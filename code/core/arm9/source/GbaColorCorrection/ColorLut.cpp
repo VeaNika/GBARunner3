@@ -5,6 +5,7 @@
 
 // Based on https://gist.github.com/profi200/bfa7be60b3eecb8c43f59000f626c743
 
+[[gnu::section(".lutbuff")]]
 u16 gColorLut[COLOR_LUT_SIZE];
 
 // When the 2d engine converts from 5 to 6 bit, the lsb bit will always be zero (i.e. 31 -> 62)

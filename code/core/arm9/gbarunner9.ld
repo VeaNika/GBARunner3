@@ -244,6 +244,13 @@ SECTIONS
 		__itcm_end = ABSOLUTE(.);
 	} >itcm AT>vramab :itcm = 0xff
 
+    /* Color Correction LUT buffer placed in EWRAM. */
+	.lutbuff (NOLOAD) : {
+    	. = ALIGN(4);
+    	*(.lutbuff)
+    	. = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
+    } >ewram
+
     .ewram :
     {
         __ewram_lma = LOADADDR(.ewram);
