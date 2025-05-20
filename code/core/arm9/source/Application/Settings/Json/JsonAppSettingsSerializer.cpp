@@ -27,6 +27,7 @@
 #define KEY_RUN_SETTINGS_ENABLE_WRAM_ICACHE                 "enableWramICache"
 #define KEY_RUN_SETTINGS_ENABLE_IWRAM_DCACHE                "enableIWramDCache"
 #define KEY_RUN_SETTINGS_ENABLE_EWRAM_DCACHE                "enableEWramDCache"
+#define KEY_RUN_SETTINGS_ARM9_CLOCK_SPEED                   "forceDSModeArm9Clock"
 #define KEY_RUN_SETTINGS_SELF_MODIFYING_PATCH_ADDRESSES     "selfModifyingPatchAddresses"
 #define KEY_RUN_SETTINGS_SKIP_BIOS_INTRO                    "skipBiosIntro"
 
@@ -239,6 +240,7 @@ static void readRunSettings(const JsonObjectConst& json, RunSettings& runSetting
     readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_WRAM_ICACHE], runSettings.enableWramInstructionCache);
     readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_IWRAM_DCACHE], runSettings.enableIWramDataCache);
     readBoolSetting(json[KEY_RUN_SETTINGS_ENABLE_EWRAM_DCACHE], runSettings.enableEWramDataCache);
+    readBoolSetting(json[KEY_RUN_SETTINGS_ARM9_CLOCK_SPEED], runSettings.forceDSModeArm9ClockSpeed);
     tryParseSelfModifyingPatchAddresses(json[KEY_RUN_SETTINGS_SELF_MODIFYING_PATCH_ADDRESSES], runSettings);
     readBoolSetting(json[KEY_RUN_SETTINGS_SKIP_BIOS_INTRO], runSettings.skipBiosIntro);
 }

@@ -47,6 +47,7 @@
 #include "MemoryEmulator/HiCodeCacheMapping.h"
 #include "VirtualMachine/VMNestedIrq.h"
 #include "Peripherals/RomGpio/RomGpio.h"
+#include "arm9Clock.h"
 
 #define DEFAULT_ROM_FILE_PATH           "/rom.gba"
 #define BIOS_FILE_PATH                  "/_gba/bios.bin"
@@ -358,6 +359,19 @@ static void setupEWramDataCache()
     mpu_setRegionDataBufferability(MPU_REGION_GBA_EWRAM, false);
 }
 
+static void setupArm9Clock()
+{
+    if (Environment::IsDsiMode())
+    {
+        const auto& runSettings = gAppSettingsService.GetAppSettings().runSettings;
+        ScfgArm9Clock arm9Clock = runSettings.forceDSModeArm9ClockSpeed
+            ? ScfgArm9Clock::Nitro67MHz    // Force DS mode clock if true
+            : ScfgArm9Clock::Twl134MHz;
+
+        scfg_setArm9Clock(arm9Clock);
+    }
+}
+
 static void loadGameSpecificSettings()
 {
     auto path = std::make_unique<char[]>(128);
@@ -520,6 +534,7 @@ extern "C" void gbaRunnerMain(int argc, char* argv[])
     setupRomInstructionCache();
     setupIWramDataCache();
     setupEWramDataCache();
+    setupArm9Clock();
 
     hic_initialize();
     vm_nestedIrqLevel = 0;  // restore nested irq level
