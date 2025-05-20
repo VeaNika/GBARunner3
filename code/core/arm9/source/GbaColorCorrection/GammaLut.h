@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <array>
 
-class GammaLut {
+class GammaLut 
+{
 public:
     static u16 encode(u16 value);
     static u16 decode(u16 value, int index);

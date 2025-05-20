@@ -5,7 +5,8 @@
 
 // Based on https://gist.github.com/profi200/bfa7be60b3eecb8c43f59000f626c743
 
-u16 gColorLut[COLOR_LUT_SIZE] __attribute__((section(".lutram")));
+[[gnu::section(".lutbuff")]]
+u16 gColorLut[COLOR_LUT_SIZE];
 
 // When the 2d engine converts from 5 to 6 bit, the lsb bit will always be zero (i.e. 31 -> 62)
 static constexpr u32 rgb8ToRgb5(u32 value8)
