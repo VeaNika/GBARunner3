@@ -22,6 +22,7 @@ PHDRS
 	main    PT_LOAD FLAGS(7);
 	itcm    PT_LOAD FLAGS(7);
 	dtcm    PT_LOAD FLAGS(7);
+	ewram   PT_LOAD FLAGS(7);
 }
 
 __heap_end = ORIGIN(ewram) + LENGTH(ewram);
@@ -160,7 +161,6 @@ SECTIONS
 		__dtcm_start = ABSOLUTE(.);
 		KEEP (ThumbDtcm.o(.dtcm))
 		. = 0xF70;
-		KEEP (MemoryLoadStoreRemapTable.o(.dtcm))
 		KEEP (ArmDispatchTable.o(.dtcm))
 		KEEP (ArmLdmStmRd.o(.dtcm))
 		KEEP (ArmLdmStmRm.o(.dtcm))
@@ -181,8 +181,10 @@ SECTIONS
 		KEEP (JitArmUndefinedBL.o(.dtcm))
 		KEEP (JitArmUndefinedBx.o(.dtcm))
 		KEEP (JitArmUndefinedLdrPcImm.o(.dtcm))
-		*(EXCLUDE_FILE(VMDtcm.o VMUndefinedThumbTable.o VMUndefinedArmTable.o MemoryLoadStoreTables.o MemoryLoadStoreWordTables.o) .dtcm)
+		*(EXCLUDE_FILE(VMDtcm.o VMUndefinedThumbTable.o VMUndefinedArmTable.o MemoryLoadStoreTables.o MemoryLoadStoreWordTables.o MemoryLoadStoreRemapTable.o) .dtcm)
 		*(.dtcm.*)
+		. = 0x33E8;
+		KEEP (MemoryLoadStoreRemapTable.o(.dtcm))
 		. = 0x34E8;
 		KEEP (MemoryLoadStoreWordTables.o(.dtcm))
 		. = 0x3668;
@@ -213,7 +215,8 @@ SECTIONS
 		KEEP (VMMode.o(.itcm))
 		. = 0x7B4;
 		KEEP (VMSwi.o(.itcm))
-		KEEP (ArmLoadStoreShortRm.o(.itcm))
+		KEEP (RegDispCnt.o(.itcm))
+		KEEP (Input.o(.itcm))
 		KEEP (IoFallback.o(.itcm))
 		KEEP (PrefetchAbort.o(.itcm))
 		. = 0xC00;
@@ -230,6 +233,9 @@ SECTIONS
 		KEEP (ArmLoadStoreShortRd.o(.itcm))
 		KEEP (ArmSwpRd.o(.itcm))
 		KEEP (GbaSoundAsm.o(.itcm))
+		KEEP (VMUndefinedMsr.o(.itcm))
+		KEEP (JitArmUndefinedBx.o(.itcm))
+		KEEP (JitArmUndefinedLdrPcImm.o(.itcm))
 		. = 0x3000;
 		KEEP (ThumbGetRn.o(.itcm))
 		*(.itcm)
@@ -237,6 +243,15 @@ SECTIONS
 		. = ALIGN(4);
 		__itcm_end = ABSOLUTE(.);
 	} >itcm AT>vramab :itcm = 0xff
+
+	.ewram :
+	{
+	    __ewram_lma = LOADADDR(.ewram);
+	    __ewram_start = ABSOLUTE(.);
+	    *(.ewram)
+	    . = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
+	    __ewram_end = ABSOLUTE(.);
+	} >ewram AT>vramab :ewram
 
 	.ewram.bss (NOLOAD):
 	{

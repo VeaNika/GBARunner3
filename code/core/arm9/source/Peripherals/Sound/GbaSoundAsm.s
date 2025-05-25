@@ -7,14 +7,12 @@
 arm_func emu_gbaSoundStore8
     mov r11, #1
 gbaSoundStore:
-    mov r10, r13
-    ldr sp,= dtcmStack + 128
-    push {r0-r3,r10,lr}
+    push {r0-r3,lr}
     mov r0, r8
     mov r1, r9
     mov r2, r11
     bl gbas_writeSoundRegister
-    ldmfd sp, {r0-r3,r13,pc}
+    pop {r0-r3,pc}
 
 arm_func emu_gbaSoundStore16
     mov r11, #2
@@ -34,4 +32,26 @@ arm_func emu_gbaSoundLoadSoundCntX
         moveq r9, #0 // when master enable off
         andne r9, r9, #0xF // when master enable on
         orrne r9, r9, #0x80
+    bx lr
+
+arm_func gbas_writeFifoA32
+    ldr r10,= gGbaSoundShared + 4 // r10 = &gGbaSoundShared.directChannels[0];
+    // interlock
+    ldrh r11, [r10, #34] // writeOffset
+    // interlock x2
+    str r9, [r10, r11, lsl #2]
+    add r11, r11, #1
+    and r11, r11, #7
+    strh r11, [r10, #34] // writeOffset = (writeOffset + 1) & 7
+    bx lr
+
+arm_func gbas_writeFifoB32
+    ldr r10,= gGbaSoundShared + 44 // r10 = &gGbaSoundShared.directChannels[1];
+    // interlock
+    ldrh r11, [r10, #34] // writeOffset
+    // interlock x2
+    str r9, [r10, r11, lsl #2]
+    add r11, r11, #1
+    and r11, r11, #7
+    strh r11, [r10, #34] // writeOffset = (writeOffset + 1) & 7
     bx lr

@@ -1,11 +1,13 @@
 #include "common.h"
 #include <libtwl/ipc/ipcFifoSystem.h>
 #include <libtwl/ipc/ipcFifo.h>
+#include <libtwl/ipc/ipcSync.h>
 #include <string.h>
 #include "IpcChannels.h"
 #include "FsIpcCommand.h"
 #include "cp15.h"
 #include "Cpsr.h"
+#include "VirtualMachine/VMNestedIrq.h"
 #include "FsIpc.h"
 
 [[gnu::section(".ewram.bss")]]
@@ -15,14 +17,25 @@ alignas(32) static u8 sTempBuffers[2][512];
 
 static FsWaitToken* volatile sCurrentWaitToken = nullptr;
 
+static bool isArm7FsOperationComplete()
+{
+    u32 ipcSync = REG_IPCSYNC;
+    return ((ipcSync >> IPCSYNC_LOCAL_DATA_SHIFT) & 0xF) == (ipcSync & IPCSYNC_REMOTE_DATA_MASK);
+}
+
 extern "C"
 [[gnu::noinline]]
 u32 fs_waitForCompletion(FsWaitToken* waitToken, bool keepIrqsDisabled)
 {
     u32 irqs;
+#ifdef GBAR3_IRQ_YIELDING
+    irqs = arm_disableIrqs();
+#endif
     while (true)
     {
+    #ifndef GBAR3_IRQ_YIELDING
         irqs = arm_disableIrqs();
+    #endif
         if (waitToken && waitToken->transactionComplete)
         {
             break;
@@ -32,14 +45,21 @@ u32 fs_waitForCompletion(FsWaitToken* waitToken, bool keepIrqsDisabled)
         {
             break;
         }
-        else if (!ipc_isRecvFifoEmpty())
+        else if (isArm7FsOperationComplete())
         {
-            ipc_recvWordDirect();
             currentWaitToken->transactionComplete = true;
             sCurrentWaitToken = nullptr;
             break;
         }
+    #ifdef GBAR3_IRQ_YIELDING
+        if (!(irqs & 0x80) && !vm_yieldGbaIrqs())
+        {
+            arm_restoreIrqs(irqs);
+            irqs = arm_disableIrqs();
+        }
+    #else
         arm_restoreIrqs(irqs);
+    #endif
     }
     if (!keepIrqsDisabled)
     {
@@ -53,6 +73,13 @@ extern "C" u32 fs_waitForCompletionOfCurrentTransaction(bool keepIrqsDisabled)
     return fs_waitForCompletion(nullptr, keepIrqsDisabled);
 }
 
+static void sendIpcCommand()
+{
+    dc_flushRange(&sIpcCommand, sizeof(sIpcCommand));
+    ipc_setArm9SyncBits(ipc_getArm7SyncBits() + 1);
+    ipc_sendWordDirect(((((u32)&sIpcCommand) >> 2) << IPC_FIFO_MSG_CHANNEL_BITS) | IPC_CHANNEL_FS);
+}
+
 static void executeIpcCommandAsync(u32 cmd, void* buffer, u32 sector, u32 count, FsWaitToken* waitToken)
 {
     waitToken->transactionComplete = false;
@@ -62,8 +89,7 @@ static void executeIpcCommandAsync(u32 cmd, void* buffer, u32 sector, u32 count,
         sIpcCommand.buffer = buffer;
         sIpcCommand.sector = sector;
         sIpcCommand.count = count;
-        dc_flushRange(&sIpcCommand, sizeof(sIpcCommand));
-        ipc_sendWordDirect(((((u32)&sIpcCommand) >> 2) << IPC_FIFO_MSG_CHANNEL_BITS) | IPC_CHANNEL_FS);
+        sendIpcCommand();
         sCurrentWaitToken = waitToken;
     }
     arm_restoreIrqs(irqs);
@@ -87,14 +113,12 @@ static void readSectorsNotCacheAligned(FsDevice device, void* buffer, u32 sector
     {
         sIpcCommand.buffer = sTempBuffers[i & 1];
         sIpcCommand.sector = sector + i;
-        dc_flushRange(&sIpcCommand, sizeof(sIpcCommand));
-        ipc_sendWordDirect(((((u32)&sIpcCommand) >> 2) << IPC_FIFO_MSG_CHANNEL_BITS) | IPC_CHANNEL_FS);
+        sendIpcCommand();
         if (i != 0)
             memcpy((u8*)buffer + 512 * (i - 1), sTempBuffers[(i - 1) & 1], 512);
         if (i != count - 1)
             dc_invalidateRange(sTempBuffers[(i + 1) & 1], 512);
-        while (ipc_isRecvFifoEmpty());
-        ipc_recvWordDirect();
+        while (!isArm7FsOperationComplete());
     }
     memcpy((u8*)buffer + 512 * (count - 1), sTempBuffers[(count - 1) & 1], 512);
 }
@@ -135,15 +159,13 @@ static void writeSectorsNotCacheAligned(FsDevice device, const void* buffer, u32
     {
         sIpcCommand.buffer = sTempBuffers[i & 1];
         sIpcCommand.sector = sector + i;
-        dc_flushRange(&sIpcCommand, sizeof(sIpcCommand));
-        ipc_sendWordDirect(((((u32)&sIpcCommand) >> 2) << IPC_FIFO_MSG_CHANNEL_BITS) | IPC_CHANNEL_FS);
+        sendIpcCommand();
         if (i != count - 1)
         {
             memcpy(sTempBuffers[(i + 1) & 1], (u8*)buffer + 512 * (i + 1), 512);
             dc_flushRange(sTempBuffers[(i + 1) & 1], 512);
         }
-        while (ipc_isRecvFifoEmpty());
-        ipc_recvWordDirect();
+        while (!isArm7FsOperationComplete());
     }
     memcpy((u8*)buffer + 512 * (count - 1), sTempBuffers[(count - 1) & 1], 512);
 }

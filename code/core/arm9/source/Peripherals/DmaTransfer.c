@@ -26,16 +26,44 @@ extern void dma_immTransferSafe32BadSrc(u32 dst, u32 byteCount, int dstStep);
 extern u32 dma_transferRegister;
 extern s8 dma_stepTable[4];
 
+extern u32 emu_hblankDmaSkipInstruction;
+extern u32 emu_hblankDmaJumpInstructions[4];
+
+static u32 hblankDmaSkipInstruction;
+static u32 hblankDmaSkipDuringVblankInstruction;
+static u32 hblankDmaJumpInstructions[4];
+
+extern u32 emu_vblankDmaJumpInstruction;
+extern u32 emu_vblankDmaJumpInstructions[4];
+
+static u32 vblankDmaJumpInstruction;
+static u32 vblankDmaJumpInstructions[4];
+
+extern u32 emu_soundDma1JumpInstruction;
+extern u32 emu_soundDma2JumpInstruction;
+
+static u32 soundDma1JumpInstruction;
+static u32 soundDma2JumpInstruction;
+
 static inline void updateHBlankIrqForChannelStop(void)
 {
     if (!(dma_state.dmaFlags & DMA_FLAG_HBLANK_MASK))
     {
+        emu_hblankDmaSkipInstruction = hblankDmaSkipInstruction;
         vm_forcedIrqMask &= ~(1 << 1);
         u32 gbaDispStat = *(u16*)&emu_ioRegisters[4];
         if (!(gbaDispStat & (1 << 4)))
         {
             gfx_setHBlankIrqEnabled(false);
         }
+    }
+}
+
+static inline void updateForVBlankChannelStop(void)
+{
+    if (!(dma_state.dmaFlags & DMA_FLAG_VBLANK_MASK))
+    {
+        emu_vblankDmaJumpInstruction = 0;
     }
 }
 
@@ -107,13 +135,51 @@ ITCM_CODE void dma_dmaTransfer(int channel)
     {
         dmaIoBase->control = control & ~GBA_DMA_CONTROL_ENABLED;
         dma_state.dmaFlags &= ~DMA_FLAG_HBLANK(channel);
+        dma_state.dmaFlags &= ~DMA_FLAG_VBLANK(channel);
         updateHBlankIrqForChannelStop();
+        updateForVBlankChannelStop();
+        emu_hblankDmaJumpInstructions[channel] = 0;
+        emu_vblankDmaJumpInstructions[channel] = 0;
     }
 }
 
 void dma_init(void)
 {
     memset(&dma_state, 0, sizeof(dma_state));
+
+    hblankDmaSkipDuringVblankInstruction = emu_hblankDmaSkipInstruction;
+    hblankDmaSkipInstruction = (hblankDmaSkipDuringVblankInstruction & ~0xF0000000) | 0xE0000000; // always condition
+    hblankDmaJumpInstructions[0] = emu_hblankDmaJumpInstructions[0];
+    hblankDmaJumpInstructions[1] = emu_hblankDmaJumpInstructions[1];
+    hblankDmaJumpInstructions[2] = emu_hblankDmaJumpInstructions[2];
+    hblankDmaJumpInstructions[3] = emu_hblankDmaJumpInstructions[3];
+
+    // Initially no hblank dma is enabled. Replace the instructions with nops.
+    emu_hblankDmaSkipInstruction = hblankDmaSkipInstruction;
+    emu_hblankDmaJumpInstructions[0] = 0;
+    emu_hblankDmaJumpInstructions[1] = 0;
+    emu_hblankDmaJumpInstructions[2] = 0;
+    emu_hblankDmaJumpInstructions[3] = 0;
+
+    vblankDmaJumpInstruction = emu_vblankDmaJumpInstruction;
+    vblankDmaJumpInstructions[0] = emu_vblankDmaJumpInstructions[0];
+    vblankDmaJumpInstructions[1] = emu_vblankDmaJumpInstructions[1];
+    vblankDmaJumpInstructions[2] = emu_vblankDmaJumpInstructions[2];
+    vblankDmaJumpInstructions[3] = emu_vblankDmaJumpInstructions[3];
+
+    // Initially no vblank dma is enabled. Replace the instructions with nops.
+    emu_vblankDmaJumpInstruction = 0;
+    emu_vblankDmaJumpInstructions[0] = 0;
+    emu_vblankDmaJumpInstructions[1] = 0;
+    emu_vblankDmaJumpInstructions[2] = 0;
+    emu_vblankDmaJumpInstructions[3] = 0;
+
+    soundDma1JumpInstruction = emu_soundDma1JumpInstruction;
+    soundDma2JumpInstruction = emu_soundDma2JumpInstruction;
+
+    // Initially no sound dma is enabled. Replace the instructions with nops.
+    emu_soundDma1JumpInstruction = 0;
+    emu_soundDma2JumpInstruction = 0;
 }
 
 ITCM_CODE static u32 translateAddress(u32 address)
@@ -276,9 +342,21 @@ ITCM_CODE void dma_immTransfer32(u32 src, u32 dst, u32 byteCount, int srcStep, i
 ITCM_CODE static void dmaStop(int channel, GbaDmaChannel* dmaIoBase)
 {
     dma_state.dmaFlags &= ~DMA_FLAG_HBLANK(channel);
+    dma_state.dmaFlags &= ~DMA_FLAG_VBLANK(channel);
     dma_state.dmaFlags &= ~DMA_FLAG_SOUND(channel);
     updateHBlankIrqForChannelStop();
     updateArm7IrqForChannelStop();
+    updateForVBlankChannelStop();
+    emu_hblankDmaJumpInstructions[channel] = 0;
+    emu_vblankDmaJumpInstructions[channel] = 0;
+    if (channel == 1)
+    {
+        emu_soundDma1JumpInstruction = 0;
+    }
+    else if (channel == 2)
+    {
+        emu_soundDma2JumpInstruction = 0;
+    }
 }
 
 ITCM_CODE static void dmaStartHBlank(int channel, GbaDmaChannel* dmaIoBase, u32 value)
@@ -292,6 +370,21 @@ ITCM_CODE static void dmaStartHBlank(int channel, GbaDmaChannel* dmaIoBase, u32 
     gfx_setHBlankIrqEnabled(true);
     dma_state.channels[channel].curSrc = src;
     dma_state.channels[channel].curDst = dmaIoBase->dst;
+    emu_hblankDmaSkipInstruction = hblankDmaSkipDuringVblankInstruction;
+    emu_hblankDmaJumpInstructions[channel] = hblankDmaJumpInstructions[channel];
+}
+
+ITCM_CODE static void dmaStartVBlank(int channel, GbaDmaChannel* dmaIoBase, u32 value)
+{
+    u32 src = dmaIoBase->src;
+    if ((src >= ROM_LINEAR_DS_ADDRESS && src < ROM_LINEAR_END_DS_ADDRESS))
+        return;
+    dmaIoBase->control = value;
+    dma_state.dmaFlags |= DMA_FLAG_VBLANK(channel);
+    dma_state.channels[channel].curSrc = src;
+    dma_state.channels[channel].curDst = dmaIoBase->dst;
+    emu_vblankDmaJumpInstruction = vblankDmaJumpInstruction;
+    emu_vblankDmaJumpInstructions[channel] = vblankDmaJumpInstructions[channel];
 }
 
 ITCM_CODE void dma_dmaSound(u32 channel)
@@ -318,7 +411,7 @@ ITCM_CODE void dma_dmaSound(u32 channel)
     u32 control = dmaIoBase->control;
     u32 src = dma_state.channels[channel].curSrc;
     int srcStep = getSrcStep(control);
-    if (src >= 0x02000000)
+    if (__builtin_expect(src >= 0x02000000, true))
     {
         dma_state.channels[channel].curSrc += srcStep * 16;
         u32 dst = dma_state.channels[channel].curDst;
@@ -329,11 +422,19 @@ ITCM_CODE void dma_dmaSound(u32 channel)
     dc_drainWriteBuffer();
 
     triggerDmaIrqIfEnabled(channel, control);
-    if (!(control & GBA_DMA_CONTROL_REPEAT))
+    if (__builtin_expect(!(control & GBA_DMA_CONTROL_REPEAT), false))
     {
         dmaIoBase->control = control & ~GBA_DMA_CONTROL_ENABLED;
         dma_state.dmaFlags &= ~DMA_FLAG_SOUND(channel);
         updateArm7IrqForChannelStop();
+        if (channel == 1)
+        {
+            emu_soundDma1JumpInstruction = 0;
+        }
+        else if (channel == 2)
+        {
+            emu_soundDma2JumpInstruction = 0;
+        }
     }
 }
 
@@ -344,6 +445,16 @@ ITCM_CODE static void dmaStartSound(int channel, GbaDmaChannel* dmaIoBase, u32 v
     vm_forcedIrqMask |= 1 << 16; // arm7 irq
     dma_state.channels[channel].curSrc = dmaIoBase->src;
     dma_state.channels[channel].curDst = dmaIoBase->dst;
+
+    if (channel == 1)
+    {
+        emu_soundDma1JumpInstruction = soundDma1JumpInstruction;
+    }
+    else
+    {
+        emu_soundDma2JumpInstruction = soundDma2JumpInstruction;
+    }
+
     gGbaSoundShared.directChannels[channel - 1].dmaRequest = false;
     dc_drainWriteBuffer();
 }
@@ -421,7 +532,7 @@ ITCM_CODE static void dmaStart(int channel, GbaDmaChannel* dmaIoBase, u32 contro
         }
         case GBA_DMA_CONTROL_MODE_VBLANK:
         {
-            // todo
+            dmaStartVBlank(channel, dmaIoBase, control);
             break;
         }
         case GBA_DMA_CONTROL_MODE_HBLANK:

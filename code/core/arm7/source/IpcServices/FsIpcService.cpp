@@ -1,15 +1,15 @@
 #include "common.h"
+#include "../mmc/sdmmc.h"
+#include <libtwl/ipc/ipcSync.h>
 #include <string.h>
 #include "dldi.h"
 #include "FsIpcService.h"
-
-extern "C" int sdmmc_sd_startup();
 
 void FsIpcService::Start()
 {
     if (isDSiMode())
     {
-        sdmmc_sd_startup();
+        SDMMC_init(SDMMC_DEV_CARD);
     }
     ThreadIpcService::Start();
 }
@@ -57,23 +57,23 @@ void FsIpcService::SetupDldi(const fs_ipc_cmd_t* cmd) const
 void FsIpcService::DldiReadSectors(const fs_ipc_cmd_t* cmd) const
 {
     _DLDI_readSectors_ptr(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }
 
 void FsIpcService::DldiWriteSectors(const fs_ipc_cmd_t* cmd) const
 {
     _DLDI_writeSectors_ptr(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }
 
 void FsIpcService::DsiSdReadSectors(const fs_ipc_cmd_t* cmd) const
 {
-    sdmmc_sdcard_readsectors(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    SDMMC_readSectors(SDMMC_DEV_CARD, cmd->sector, cmd->buffer, cmd->count);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }
 
 void FsIpcService::DsiSdWriteSectors(const fs_ipc_cmd_t* cmd) const
 {
-    sdmmc_sdcard_writesectors(cmd->sector, cmd->count, cmd->buffer);
-    SendResponseMessage(0);
+    SDMMC_writeSectors(SDMMC_DEV_CARD, cmd->sector, cmd->buffer, cmd->count);
+    ipc_setArm7SyncBits(ipc_getArm9SyncBits());
 }

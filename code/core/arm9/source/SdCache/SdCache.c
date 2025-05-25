@@ -1,4 +1,5 @@
 #include "common.h"
+#include <string.h>
 #include "Fat/ff.h"
 #include "Fat/diskio.h"
 #include "Fat/FsIpc.h"
@@ -97,6 +98,29 @@ static u32 getSdSectorOfRomBlock(u32 romBlock)
     return sector;
 }
 
+static void fillOutOfBoundsCacheBlock(u32 romBlock, u32 cacheBlock)
+{
+    u32 romSize = f_size(&gFile);
+    u32 powerOf2RomSize = romSize < 0x100000 ? 0x100000 : (1 << (32 - __builtin_clz(romSize - 1)));
+    if (romBlock * SDC_BLOCK_SIZE < powerOf2RomSize)
+    {
+        memset(&sdc_cache[cacheBlock][0], 0xFF, SDC_BLOCK_SIZE);
+    }
+    else
+    {
+        for (u32 i = 0; i < SDC_BLOCK_SIZE; i += 4)
+        {
+            u32 address = romBlock * SDC_BLOCK_SIZE + i;
+            u32 oobValue = (address >> 1) & 0xFFFF;
+            *(u32 *)&sdc_cache[cacheBlock][i] = oobValue | ((oobValue + 1) << 16);
+        }
+    }
+
+    sCacheBlockToRomBlock[cacheBlock] = romBlock;
+    sdc_romBlockToCacheBlock[romBlock] = &sdc_cache[cacheBlock][0];
+    dc_drainWriteBuffer();
+}
+
 /// @brief Loads a rom block to the given buffer.
 /// @param romBlock Rom block index to load.
 /// @param dst The destination buffer.
@@ -157,7 +181,8 @@ static void* loadRomBlock(u32 romBlock, u32 cacheBlock)
     
     // SLOT2 copies the block afterwards, rather than pulling from the SD Cache here.
     FsWaitToken waitToken;
-    if(!gSlot2Active){
+    if(!gSlot2Active)
+    {
         fs_readCacheAlignedSectorsAsync(
             gFile.obj.fs->pdrv == DEV_FAT ? FS_DEVICE_DLDI : FS_DEVICE_DSI_SD,
             &sdc_cache[cacheBlock][0], sector,
@@ -172,17 +197,28 @@ static void* loadRomBlock(u32 romBlock, u32 cacheBlock)
         sTabuBlock = cacheBlock;
     }
     arm_restoreIrqs(irqs);
-    if(gSlot2Active) mem_copy32((void*)(0x08000000 + (romBlock * SDC_BLOCK_SIZE)), &sdc_cache[cacheBlock][0], SDC_BLOCK_SIZE);
-    else irqs = fs_waitForCompletion(&waitToken, true);
-        
-    if(gSlot2Active) arm_restoreIrqs(irqs);
-    
+    if(gSlot2Active) 
+    {
+        mem_copy32((void*)(0x08000000 + (romBlock * SDC_BLOCK_SIZE)), &sdc_cache[cacheBlock][0], SDC_BLOCK_SIZE);
+    }
+    else 
+    {
+        irqs = fs_waitForCompletion(&waitToken, true);
+    }
+    if(gSlot2Active)
+    {
+        arm_restoreIrqs(irqs);
+    }
     if (sCurrentFetch.romBlock == romBlock)
     {
         finishFetch();
     }
 
     arm_restoreIrqs(irqs);
+    if (sector = 0)
+    {
+        fillOutOfBoundsCacheBlock(romBlock, cacheBlock);
+    }
     return &sdc_cache[cacheBlock][0];
 }
 extern void logAddress(u32 address);

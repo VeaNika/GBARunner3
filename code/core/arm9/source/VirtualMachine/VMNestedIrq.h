@@ -6,6 +6,7 @@ extern "C" {
 
 extern void vm_enableNestedIrqs(void);
 extern void vm_disableNestedIrqs(void);
+extern bool vm_yieldGbaIrqs(void);
 
 #ifdef __cplusplus
 }

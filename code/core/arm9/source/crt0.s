@@ -65,6 +65,19 @@ itcm_done:
     bgt 1b
 dtcm_done:
 
+    // copy ewram in place
+    ldr r0, =__ewram_lma
+    ldr r2, =__ewram_start
+    ldr r1, =__ewram_end
+    subs r1, r1, r2
+    beq ewram_done
+1:
+    ldmia r0!, {r3-r10}
+    stmia r2!, {r3-r10}
+    subs r1, #0x20
+    bgt 1b
+ewram_done:
+
     // clear bss
     ldr r0,= __bss_start
     ldr r1,= __bss_end
@@ -104,6 +117,9 @@ vramhi_bss_done:
 
     msr cpsr_c, #0x92
     ldr sp,= 0x03008000
+
+    msr cpsr_c, #0x91
+    ldr sp,= dtcmStackEnd
 
     msr cpsr_c, #0x9F
     ldr sp,= dtcmStackEnd

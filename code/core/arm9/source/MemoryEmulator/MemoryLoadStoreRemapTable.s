@@ -2,9 +2,10 @@
 .altmacro
 
 #include "AsmMacros.inc"
+#include "MemoryLoadStoreTableDefs.inc"
 
-.global memu_loadStoreRemapTable
-memu_loadStoreRemapTable:
+@ .global memu_loadStoreRemapTable
+@ memu_loadStoreRemapTable:
     .byte 0
     .byte (1 << 2)
     .byte (2 << 2)
@@ -24,9 +25,5 @@ memu_loadStoreRemapTable:
 .rept (256 - 16)
     .byte (1 << 2)
 .endr
-
-.global memu_armTmpUsrReg
-memu_armTmpUsrReg:
-    .word 0
 
 .end

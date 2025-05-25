@@ -1,0 +1,15 @@
+{
+    "runSettings": {
+        "jitPatchAddresses": [
+            "0x080000C4",
+            "0x080000D0",
+            "0x087ECBC0",
+            "0x087ECC88",
+            "0x087ECC94",
+            "0x087ECCB0",
+            "0x087ECCBC",
+            "0x087ECCC8"
+        ],
+        "enableWramICache": false
+    }
+}

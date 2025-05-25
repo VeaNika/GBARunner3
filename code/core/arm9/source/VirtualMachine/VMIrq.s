@@ -234,8 +234,3 @@ arm_func vm_jumpToIrqHandlerCommon
     mov lr, r4
     ldr r4, DTCM(vm_irqSavedR4)
     movs pc, lr
-
-.text
-arm_func vm_returnFromIrq
-    pop {r0-r3,r12,lr}
-    vmSUBS pc, lr, 4
