@@ -35,7 +35,7 @@ SOURCES		:=	source \
 				source/Gui \
 				source/Gui/Animation \
 				source/JitPatcher \
-				source/Logger \
+				../common/Logger \
 				source/MemoryEmulator \
 				source/MemoryEmulator/Arm \
 				source/MemoryEmulator/Thumb \

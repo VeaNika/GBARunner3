@@ -6,6 +6,7 @@
 #include <libtwl/rtos/rtosIrq.h>
 #include <libtwl/rtos/rtosThread.h>
 #include <libtwl/rtos/rtosEvent.h>
+#include <libtwl/sys/swi.h>
 #include <libtwl/sound/sound.h>
 #include <libtwl/sound/soundChannel.h>
 #include <libtwl/sio/sio.h>
@@ -14,21 +15,49 @@
 #include <libtwl/spi/spiPmic.h>
 #include "IpcServices/FsIpcService.h"
 #include "IpcServices/GbaSoundIpcService.h"
+#include "IpcServices/GbaSioIpcService.h"
 #include "IpcServices/SystemIpcService.h"
 #include "IpcServices/GbaSaveIpcService.h"
 #include "Arm7State.h"
 #include "ExitMode.h"
+#include "Logger/NitroEmulatorOutputStream.h"
+#include "Logger/PlainLogger.h"
+#include "Logger/NullLogger.h"
 #include "FramerateAdjustment.h"
 #include "mmc/tmio.h"
+#include "Rfu/Rfu.h"
+
+static NitroEmulatorOutputStream sIsNitroOutput;
+[[gnu::section(".ewram.bss")]]
+static PlainLogger sPlainLogger { LogLevel::All, &sIsNitroOutput };
+static NullLogger sNullLogger;
+ILogger* gLogger;
 
 static FsIpcService sFsIpcService;
 static GbaSoundIpcService sGbaSoundIpcService;
+static GbaSioIpcService sGbaSioIpcService;
 static SystemIpcService sSystemIpcService;
 static GbaSaveIpcService sGbaSaveIpcService;
 static rtos_event_t sVBlankEvent;
 static volatile u8 sMcuIrqFlag = false;
 static Arm7State sState;
 static ExitMode sExitMode;
+
+extern "C" void logFromC(const char* fmt, ...)
+{
+    va_list vlist;
+    va_start(vlist, fmt);
+    gLogger->LogV(LogLevel::Debug, fmt, vlist);
+    va_end(vlist);
+}
+
+static void setupLogger()
+{
+    if (false)
+        gLogger = &sPlainLogger;
+    else
+        gLogger = &sNullLogger;
+}
 
 static void vblankIrq(u32 irqMask)
 {
@@ -77,6 +106,7 @@ static void initializeIpcServices()
     sGbaSoundIpcService.Start();
     sSystemIpcService.Start();
     sGbaSaveIpcService.Start();
+    sGbaSioIpcService.Start();
 }
 
 static void initializeVBlankIrq()
@@ -91,6 +121,8 @@ static void initializeArm7()
 {
     rtos_initIrq();
     rtos_startMainThread();
+
+    setupLogger();
 
     while (ipc_getArm9SyncBits() != 0);
 
@@ -197,6 +229,7 @@ int main()
     {
         rtos_waitEvent(&sVBlankEvent, true, true);
         updateArm7();
+        rfu_frame_update();
     }
     
     return 0;
