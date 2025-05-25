@@ -1,6 +1,7 @@
 #pragma once
 #include <nds/ndstypes.h>
 #include <stddef.h>
+#include <nds.h>
 
 typedef u16 bool16;
 

@@ -6,12 +6,17 @@
 #include "SaveFlash.h"
 #include "SaveSram.h"
 #include "SaveTagScanner.h"
+#include "MemoryEmulator/RomDefs.h"
+#include "MemCopy.h"
+#include "Slot2.h"
 
 #define SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE  (SAVE_TAG_SCANNER_TEMP_BUFFER_SIZE >> 1)
 
 #define TAG_START_FLAS  0x53414C46
 #define TAG_START_SRAM  0x4D415253
 #define TAG_START_EEPR  0x52504545
+
+extern bool gSlot2Active;
 
 static constexpr auto sSaveTypeInfos = std::to_array<const SaveTypeInfo>
 ({
@@ -48,45 +53,85 @@ static constexpr auto sSaveTypeInfos = std::to_array<const SaveTypeInfo>
 
 const SaveTypeInfo* SaveTagScanner::FindSaveTag(FIL* romFile, u8* tempBuffer, u32& tagRomAddress)
 {
-    tagRomAddress = 0;
-    f_rewind(romFile);
-    UINT read;
-    u32 curAddr = 0;
-    if (f_read(romFile, tempBuffer, SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE, &read) != FR_OK)
-    {
-        return nullptr;
-    }
-    int searchBufPtr = 0;
-    while (curAddr < f_size(romFile))
-    {
-        if (searchBufPtr == 0)
+    // This is a bit messy but it works for now.
+    if(!gSlot2Active){
+        tagRomAddress = 0;
+        f_rewind(romFile);
+        UINT read;
+        u32 curAddr = 0;
+        if (f_read(romFile, tempBuffer, SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE, &read) != FR_OK)
         {
-            if (f_read(romFile, tempBuffer + SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE,
-                SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE, &read) != FR_OK)
-            {
-                return nullptr;
-            }
+            return nullptr;
         }
-        else if (searchBufPtr == SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE)
+        int searchBufPtr = 0;
+        while (curAddr < f_size(romFile))
         {
-            if (f_read(romFile, tempBuffer, SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE, &read) != FR_OK)
+            if (searchBufPtr == 0)
             {
-                return nullptr;
+                if (f_read(romFile, tempBuffer + SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE,
+                    SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE, &read) != FR_OK)
+                {
+                    return nullptr;
+                }
             }
-        }
+            else if (searchBufPtr == SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE)
+            {
+                if (f_read(romFile, tempBuffer, SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE, &read) != FR_OK)
+                {
+                    return nullptr;
+                }
+            }
 
-        SaveType saveType = IdentifySaveTypeFromFirst4TagBytes(*(u32*)&tempBuffer[searchBufPtr]);
-        if (saveType != SAVE_TYPE_NONE)
-        {
-            auto saveTypeInfo = GetSaveTypeInfoFromTag(saveType, tempBuffer, searchBufPtr);
-            if (saveTypeInfo)
+            SaveType saveType = IdentifySaveTypeFromFirst4TagBytes(*(u32*)&tempBuffer[searchBufPtr]);
+            if (saveType != SAVE_TYPE_NONE)
             {
-                tagRomAddress = curAddr;
-                return saveTypeInfo;
+                auto saveTypeInfo = GetSaveTypeInfoFromTag(saveType, tempBuffer, searchBufPtr);
+                if (saveTypeInfo)
+                {
+                    tagRomAddress = curAddr;
+                    return saveTypeInfo;
+                }
             }
+            searchBufPtr = (searchBufPtr + 4) & (SAVE_TAG_SCANNER_TEMP_BUFFER_SIZE - 1);
+            curAddr += 4;
         }
-        searchBufPtr = (searchBufPtr + 4) & (SAVE_TAG_SCANNER_TEMP_BUFFER_SIZE - 1);
-        curAddr += 4;
+        return nullptr;
+    } else {
+        tagRomAddress = 0;
+        u32 curAddr = 0;
+        int searchBufPtr = 0;
+        int ptrIncrement = 0;
+
+        mem_copy32((void*)(0x08000000 + ptrIncrement), tempBuffer, SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE);
+        ptrIncrement += SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE;
+
+        while (curAddr < 0x2000000) //32mb
+        {
+            if (searchBufPtr == 0)
+            {
+                mem_copy32((void*)(0x08000000 + ptrIncrement), tempBuffer + SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE, SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE);
+                ptrIncrement += SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE;
+            }
+            else if (searchBufPtr == SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE)
+            {
+                mem_copy32((void*)(0x08000000 + ptrIncrement), tempBuffer, SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE);
+                ptrIncrement += SAVE_TAG_SCANNER_TEMP_BUFFER_HALF_SIZE;
+            }
+
+            SaveType saveType = IdentifySaveTypeFromFirst4TagBytes(*(u32*)&tempBuffer[searchBufPtr]);
+            if (saveType != SAVE_TYPE_NONE)
+            {   
+                auto saveTypeInfo = GetSaveTypeInfoFromTag(saveType, tempBuffer, searchBufPtr);
+                if (saveTypeInfo)
+                {
+                    tagRomAddress = curAddr;
+                    return saveTypeInfo;
+                }
+            }
+            searchBufPtr = (searchBufPtr + 4) & (SAVE_TAG_SCANNER_TEMP_BUFFER_SIZE - 1);
+            curAddr += 4;
+        }
+        return nullptr;
     }
     return nullptr;
 }
@@ -111,7 +156,7 @@ SaveType SaveTagScanner::IdentifySaveTypeFromFirst4TagBytes(u32 first4TagBytes)
         {
             return SAVE_TYPE_NONE;
         }
-    }
+    } 
 }
 
 const SaveTypeInfo* SaveTagScanner::GetSaveTypeInfoFromTag(SaveType saveType, const u8* tempBuffer, u32 searchBufPtr)

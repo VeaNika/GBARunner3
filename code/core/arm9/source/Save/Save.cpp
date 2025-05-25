@@ -13,6 +13,7 @@
 #include "IpcChannels.h"
 #include "GbaSaveIpcCommand.h"
 #include "Save.h"
+#include "MemCopy.h"
 
 #define DEFAULT_SAVE_SIZE   (32 * 1024)
 
@@ -27,6 +28,7 @@ gba_save_shared_t gGbaSaveShared;
 
 static DWORD sClusterTable[64];
 static u32 sSkipSaveCheckInstruction;
+extern bool gSlot2Active;
 
 // temporarily
 extern FIL gFile;

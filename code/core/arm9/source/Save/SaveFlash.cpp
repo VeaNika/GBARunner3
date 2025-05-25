@@ -8,6 +8,7 @@
 #include "SaveTypeInfo.h"
 #include "MemoryEmulator/RomDefs.h"
 #include "SaveFlash.h"
+#include "Slot2.h"
 
 #define MAKER_ID_MACRONIX           0xC2
 #define DEVICE_ID_MACRONIX_512K     0x1C
@@ -35,6 +36,8 @@ struct flash_patchinfo_t
 static flash_patchinfo_t sPatchInfo;
 static flash_v120_type sFlashType;
 static const u16 sMaxTime[] = { 0xA, 0xFFBD, 0xC2, 0xA, 0xFFBD, 0xC2, 0x28, 0xFFBD, 0xC2, 0xC8, 0xFFBD, 0xC2 };
+
+extern bool gSlot2Active;
 
 static void readFlash(u16 secNo, u32 offset, u8* dst, u32 size)
 {
@@ -275,14 +278,16 @@ bool flash_patchV126(const SaveTypeInfo* saveTypeInfo, FIL* romFile, u32 tagRomA
 
 bool flash_patch512V130(const SaveTypeInfo* saveTypeInfo, FIL* romFile, u32 tagRomAddress, u8* tempBuffer)
 {
-    if (f_lseek(romFile, tagRomAddress + ((saveTypeInfo->tagLength + 3) & ~3)) != FR_OK)
-    {
-        return false;
-    }
-    UINT read = 0;
-    if (f_read(romFile, tempBuffer, 0x94, &read) != FR_OK || read != 0x94)
-    {
-        return false;
+    if(!gSlot2Active){
+        if (f_lseek(romFile, tagRomAddress + ((saveTypeInfo->tagLength + 3) & ~3)) != FR_OK)
+        {
+            return false;
+        }
+        UINT read = 0;
+        if (f_read(romFile, tempBuffer, 0x94, &read) != FR_OK || read != 0x94)
+        {
+            return false;
+        }
     }
 
     sPatchInfo.progSectorPtr = *(u32**)(tempBuffer + FLASH_512V130_OFFSET_PROG_SECTOR);
@@ -306,16 +311,18 @@ bool flash_patch512V130(const SaveTypeInfo* saveTypeInfo, FIL* romFile, u32 tagR
 
 bool flash_patch1MV102(const SaveTypeInfo* saveTypeInfo, FIL* romFile, u32 tagRomAddress, u8* tempBuffer)
 {
-    if (f_lseek(romFile, tagRomAddress + ((saveTypeInfo->tagLength + 3) & ~3)) != FR_OK)
-    {
-        return false;
+    if(!gSlot2Active){
+        if (f_lseek(romFile, tagRomAddress + ((saveTypeInfo->tagLength + 3) & ~3)) != FR_OK)
+        {
+            return false;
+        }
+        UINT read = 0;
+        if (f_read(romFile, tempBuffer, 0x94, &read) != FR_OK || read != 0x94)
+        {
+            return false;
+        }
     }
-    UINT read = 0;
-    if (f_read(romFile, tempBuffer, 0x94, &read) != FR_OK || read != 0x94)
-    {
-        return false;
-    }
-
+    
     sPatchInfo.progSectorPtr = *(u32**)(tempBuffer + FLASH_1MV102_OFFSET_PROG_SECTOR);
     sPatchInfo.progBytePtr = nullptr;
     sPatchInfo.eraseChipPtr = *(u32**)(tempBuffer + FLASH_1MV102_OFFSET_ERASE_CHIP);
@@ -342,14 +349,16 @@ bool flash_patch1MV102(const SaveTypeInfo* saveTypeInfo, FIL* romFile, u32 tagRo
 
 bool flash_patch1MV103(const SaveTypeInfo* saveTypeInfo, FIL* romFile, u32 tagRomAddress, u8* tempBuffer)
 {
-    if (f_lseek(romFile, tagRomAddress + ((saveTypeInfo->tagLength + 3) & ~3)) != FR_OK)
-    {
-        return false;
-    }
-    UINT read = 0;
-    if (f_read(romFile, tempBuffer, 0x94, &read) != FR_OK || read != 0x94)
-    {
-        return false;
+    if(!gSlot2Active){
+        if (f_lseek(romFile, tagRomAddress + ((saveTypeInfo->tagLength + 3) & ~3)) != FR_OK)
+        {
+            return false;
+        }
+        UINT read = 0;
+        if (f_read(romFile, tempBuffer, 0x94, &read) != FR_OK || read != 0x94)
+        {
+            return false;
+        }
     }
 
     sPatchInfo.progSectorPtr = *(u32**)(tempBuffer + FLASH_1MV103_OFFSET_PROG_SECTOR);

@@ -8,6 +8,7 @@ class SaveTagScanner
 {
     SaveType IdentifySaveTypeFromFirst4TagBytes(u32 first4TagBytes);
     const SaveTypeInfo* GetSaveTypeInfoFromTag(SaveType saveType, const u8* tempBuffer, u32 searchBufPtr);
+    
 public:
     /// @brief Scans the given romFile for known save tags.
     /// @param romFile The rom file to scan.
