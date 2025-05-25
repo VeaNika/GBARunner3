@@ -5,11 +5,11 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-ifneq (,$(shell which python3))
+ifneq (,$(shell command -v python3 2>/dev/null))
 PYTHON	:= python3
-else ifneq (,$(shell which python2))
+else ifneq (,$(shell command -v python2 2>/dev/null))
 PYTHON	:= python2
-else ifneq (,$(shell which python))
+else ifneq (,$(shell command -v python 2>/dev/null))
 PYTHON	:= python
 else
 $(error "Python not found in PATH, please install it.")
@@ -57,11 +57,17 @@ checkarm9:
 	$(MAKE) -C arm9
 
 #---------------------------------------------------------------------------------
+ANIMATED ?= ON
+
 $(TARGET).nds	: $(NITRO_FILES) ../core/arm7/$(TARGET).elf arm9/$(TARGET).elf
 	ndstool	-c $(TARGET).nds -7 ../core/arm7/$(TARGET).elf -9 arm9/$(TARGET).elf \
 	-b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" \
 	$(_ADDFILES)
+ifeq ($(ANIMATED),ON)
 	$(PYTHON) AnimatedBannerPatch.py $@ icon.bin
+else
+	@echo "Static Icon applied"
+endif
 ifdef GBAR3_ISNITRO
 	dlditool FatInNitroFS.dldi $(TARGET).nds
 endif
