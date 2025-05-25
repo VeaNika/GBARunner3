@@ -15,7 +15,7 @@
 //};
 
 // libretro GBA AGB-001 color (sRGB).
-const ColorProfile Agb001 =
+static const ColorProfile sAgb001 =
 {
     {
         { 0.905f, 0.195f, -0.1f },
@@ -26,7 +26,7 @@ const ColorProfile Agb001 =
 };
 
 // libretro GBA SP (AGS-101) color (sRGB).
-const ColorProfile Ags101 =
+static const ColorProfile sAgs101 =
 {
     {
         { 0.96f, 0.11f, -0.07f },
@@ -37,7 +37,7 @@ const ColorProfile Ags101 =
 };
 
 // libretro GB micro OXY-001 color (sRGB).
-const ColorProfile Oxy001 =
+static const ColorProfile sOxy001 =
 {
     {
         { 0.8025f, 0.31f, -0.1125f },
@@ -48,7 +48,7 @@ const ColorProfile Oxy001 =
 };
 
 //// libretro NDS Phat NTR-001 color (sRGB).
-const ColorProfile Ntr001 =
+static const ColorProfile sNtr001 =
 {
     {
         { 0.835f, 0.27f, -0.105f },
@@ -59,7 +59,7 @@ const ColorProfile Ntr001 =
 };
 
 // libretro NDS lite USG-001 color (sRGB).
-const ColorProfile Usg001 =
+static const ColorProfile sUsg001 =
 {
     {
         { 0.93f, 0.14f, -0.07f },
@@ -70,7 +70,7 @@ const ColorProfile Usg001 =
 };
 
 // libretro PSP 1000 color (sRGB).
-const ColorProfile Psp01g =
+static const ColorProfile sPsp01g =
 {
     {
         { 0.835f, 0.155f, -0.135f },
@@ -81,7 +81,7 @@ const ColorProfile Psp01g =
 };
 
 // libretro Nintendo Switch GBA Classics color (sRGB).
-const ColorProfile NswIps =
+static const ColorProfile sNswIps =
 {
     {
         { 0.865f, 0.1225f, 0.0125f },
@@ -92,7 +92,7 @@ const ColorProfile NswIps =
 };
 
 // libretro Nintendo Switch GBA Classics Oled color (sRGB).
-const ColorProfile NswOle =
+static const ColorProfile sNswOle =
 {
     {
         { 1.54f, -0.48f, -0.06f },
@@ -103,7 +103,7 @@ const ColorProfile NswOle =
 };
 
 // libretro Visual Boy Advance color.
-const ColorProfile VbaEmu =
+static const ColorProfile sVbaEmu =
 {
     {
         { 0.73f, 0.27f, 0.f },
@@ -114,7 +114,7 @@ const ColorProfile VbaEmu =
 };
 
 // libretro No$GBA full color.
-const ColorProfile NoCash =
+static const ColorProfile sNoCash =
 {
     {
         { 0.62f, 0.1913f, -0.0917f },
@@ -125,7 +125,7 @@ const ColorProfile NoCash =
 };
 
 // libretro mGBA GBA shader color.
-const ColorProfile mGba01 =
+static const ColorProfile sMgba01 =
 {
     {
         { 0.84f, 0.18f, 0.f },
@@ -135,18 +135,24 @@ const ColorProfile mGba01 =
     0.99f
 };
 
-constexpr const ColorProfile* colorProfileLut[] =
+// This should exactly match "Application/Settings/Enums/GbaColorCorrection.h" if updated
+static const ColorProfile* const sColorProfileLut[] =
 {
     /* GbaColorCorrection::None     */ nullptr,
-    /* GbaColorCorrection::Agb001   */ &Agb001,
-    /* GbaColorCorrection::Ags101   */ &Ags101,
-    /* GbaColorCorrection::Oxy001   */ &Oxy001,
-    /* GbaColorCorrection::Ntr001   */ &Ntr001,
-    /* GbaColorCorrection::Usg001   */ &Usg001,
-    /* GbaColorCorrection::Psp01g   */ &Psp01g,
-    /* GbaColorCorrection::NswIps   */ &NswIps,
-    /* GbaColorCorrection::NswOle   */ &NswOle,
-    /* GbaColorCorrection::VbaEmu   */ &VbaEmu,
-    /* GbaColorCorrection::NoCash   */ &NoCash,
-    /* GbaColorCorrection::mGba01   */ &mGba01
+    /* GbaColorCorrection::Agb001   */ &sAgb001,
+    /* GbaColorCorrection::Ags101   */ &sAgs101,
+    /* GbaColorCorrection::Oxy001   */ &sOxy001,
+    /* GbaColorCorrection::Ntr001   */ &sNtr001,
+    /* GbaColorCorrection::Usg001   */ &sUsg001,
+    /* GbaColorCorrection::Psp01g   */ &sPsp01g,
+    /* GbaColorCorrection::NswIps   */ &sNswIps,
+    /* GbaColorCorrection::NswOle   */ &sNswOle,
+    /* GbaColorCorrection::VbaEmu   */ &sVbaEmu,
+    /* GbaColorCorrection::NoCash   */ &sNoCash,
+    /* GbaColorCorrection::mGba01   */ &sMgba01
 };
+
+const ColorProfile* cprof_getColorProfile(GbaColorCorrection colorProfile)
+{
+    return sColorProfileLut[static_cast<size_t>(colorProfile)];
+}

@@ -13,7 +13,9 @@ static constexpr u32 rgb8ToRgb5(u32 value8)
 {
     u32 value5 = (value8 * 63 + 255) / (255 * 2);
     if (value5 > 31)
+    {
         return 31;
+    }
     return value5;
 }
 
@@ -33,9 +35,9 @@ static void applyColorMatrix(const fix32<12> matrix[3][3],
     fix32<12> newB = (matrix[2][0] * r + matrix[2][1] * g + matrix[2][2] * b);
 
     // We need to clamp specifically at this step or else color will get ruined
-    outR = std::clamp((newR.Int()), 0, 255);
-    outG = std::clamp((newG.Int()), 0, 255);
-    outB = std::clamp((newB.Int()), 0, 255);
+    outR = std::clamp(newR.Int(), 0, 255);
+    outG = std::clamp(newG.Int(), 0, 255);
+    outB = std::clamp(newB.Int(), 0, 255);
 }
 
 // Convert corrected RGB8 channels to RGB555 values (with the extra green bit)
@@ -61,10 +63,10 @@ static u16 applyColorCorrection(const u16 rgb5, const ColorProfile* preset, int 
     int g8 = (g5 * 255) / 31;
     int b8 = (b5 * 255) / 31;
 
-    // Convert to linear gamma (encode)
-    fix32<12> rLin = GammaLut::encode(r8);
-    fix32<12> gLin = GammaLut::encode(g8);
-    fix32<12> bLin = GammaLut::encode(b8);
+    // Convert to non-linear gamma (encode)
+    fix32<12> rLin = gGammaLut.Encode(r8);
+    fix32<12> gLin = gGammaLut.Encode(g8);
+    fix32<12> bLin = gGammaLut.Encode(b8);
 
     // Apply luminance
     rLin = (rLin * preset->luminance);
@@ -75,10 +77,10 @@ static u16 applyColorCorrection(const u16 rgb5, const ColorProfile* preset, int 
     fix32<12> outR, outG, outB;
     applyColorMatrix(preset->matrix, rLin, gLin, bLin, outR, outG, outB);
 
-    // Convert to display gamma (decode).
-    outR = GammaLut::decode((outR.Int()), gammaIndex);
-    outG = GammaLut::decode((outG.Int()), gammaIndex);
-    outB = GammaLut::decode((outB.Int()), gammaIndex);
+    // Convert to linearized gamma (decode).
+    outR = gGammaLut.Decode(outR.Int(), gammaIndex);
+    outG = gGammaLut.Decode(outG.Int(), gammaIndex);
+    outB = gGammaLut.Decode(outB.Int(), gammaIndex);
 
     // Denormalize and convert to RGB8.
     return packToRGB5(outR, outG, outB);

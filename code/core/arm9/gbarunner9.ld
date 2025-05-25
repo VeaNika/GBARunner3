@@ -23,6 +23,7 @@ PHDRS
 	itcm    PT_LOAD FLAGS(7);
 	dtcm    PT_LOAD FLAGS(7);
 	ewram   PT_LOAD FLAGS(7);
+	ewram   PT_LOAD FLAGS(7);
 }
 
 __heap_end = ORIGIN(ewram) + LENGTH(ewram);
@@ -242,19 +243,21 @@ SECTIONS
 
     /* Color Correction LUT buffer placed in EWRAM. */
 	.lutbuff (NOLOAD) : {
+	.lutbuff (NOLOAD) : {
     	. = ALIGN(4);
+    	*(.lutbuff)
     	*(.lutbuff)
     	. = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
     } >ewram
 
-    .ewram :
-    {
-        __ewram_lma = LOADADDR(.ewram);
-        __ewram_start = ABSOLUTE(.);
-        *(.ewram)
-        . = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
-        __ewram_end = ABSOLUTE(.);
-    } >ewram AT>vramab :ewram
+	.ewram :
+	{
+	    __ewram_lma = LOADADDR(.ewram);
+	    __ewram_start = ABSOLUTE(.);
+	    *(.ewram)
+	    . = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
+	    __ewram_end = ABSOLUTE(.);
+	} >ewram AT>vramab :ewram
 
 	.ewram.bss (NOLOAD):
 	{
