@@ -251,14 +251,14 @@ SECTIONS
     	. = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
     } >ewram
 
-    .ewram :
-    {
-        __ewram_lma = LOADADDR(.ewram);
-        __ewram_start = ABSOLUTE(.);
-        *(.ewram)
-        . = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
-        __ewram_end = ABSOLUTE(.);
-    } >ewram AT>vramab :ewram
+	.ewram :
+	{
+	    __ewram_lma = LOADADDR(.ewram);
+	    __ewram_start = ABSOLUTE(.);
+	    *(.ewram)
+	    . = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
+	    __ewram_end = ABSOLUTE(.);
+	} >ewram AT>vramab :ewram
 
 	.ewram.bss (NOLOAD):
 	{
