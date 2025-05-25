@@ -5,3 +5,4 @@
 #define IPC_CHANNEL_GBA_SOUND   16
 #define IPC_CHANNEL_FS          17
 #define IPC_CHANNEL_RTC         18
+#define IPC_CHANNEL_RUMBLE      19  

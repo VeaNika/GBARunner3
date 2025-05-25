@@ -1,15 +1,18 @@
 #include "common.h"
 #include "RomGpioRtc.h"
 #include "RomGpio.h"
+#include "RomGpioSlot2.h"
 
 RomGpio gRomGpio;
 static RomGpioRtc sRomGpioRtc;
+static RomGpioSlot2 sRomGpioSlot2;
 
 void RomGpio::Initialize(rio_registers_t* romGpioRegisters)
 {
     _registers = romGpioRegisters;
     _registersRomData = *romGpioRegisters;
     Reset();
+    sRomGpioSlot2.Init(gRomGpio);
 }
 
 void RomGpio::Reset()
@@ -38,7 +41,10 @@ void RomGpio::UpdateRomRegisters()
 
 static void updateRomGpioPeripherals()
 {
+    // RTC
     sRomGpioRtc.Update(gRomGpio);
+    // Slot2
+    sRomGpioSlot2.Update(gRomGpio);
 }
 
 extern "C" void rio_write(u32 offset, u16 value)

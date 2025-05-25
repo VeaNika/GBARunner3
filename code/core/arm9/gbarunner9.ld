@@ -243,9 +243,7 @@ SECTIONS
 
     /* Color Correction LUT buffer placed in EWRAM. */
 	.lutbuff (NOLOAD) : {
-	.lutbuff (NOLOAD) : {
     	. = ALIGN(4);
-    	*(.lutbuff)
     	*(.lutbuff)
     	. = ALIGN(4);    /* REQUIRED. LD is flaky without it. */
     } >ewram

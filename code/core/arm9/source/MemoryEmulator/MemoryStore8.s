@@ -108,7 +108,17 @@ arm_func memu_store8Vram5
     b memu_store16Vram5Finish
 
 arm_func memu_store8Rom
-    bx lr
+    bic r10, r8, #0xFE000000
+    bic r10, r10, #1
+    sub r10, r10, #0xC4
+    cmp r10, #(0xC4 - 0xC8)
+        bxhi lr // not rom gpio
+
+    push {r0-r3,lr}
+    mov r0, r10 // offset
+    orr r1, r9, r9, lsl #8 // value
+    bl rio_write
+    pop {r0-r3,pc}
 
 arm_func memu_store8Sram
     ldr r10,= gSaveData
