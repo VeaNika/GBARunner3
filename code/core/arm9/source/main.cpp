@@ -33,6 +33,7 @@
 #include "GbaHeader.h"
 #include "MemoryEmulator/MemoryLoadStore.h"
 #include "GbaColorCorrection/ColorLut.h"
+#include "GbaColorCorrection/ColorLut.h"
 #include "MemoryProtectionConfiguration.h"
 #include "MemoryProtectionUnit.h"
 #include "MemoryEmulator/RomDefs.h"
