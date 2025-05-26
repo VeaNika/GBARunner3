@@ -574,7 +574,7 @@ extern "C" void gbaRunnerMain(int argc, char* argv[])
     setupJit();
     dma_init();
     gbas_init();
-    gRomGpio.Initialize((rio_registers_t*)sdc_loadRomBlockForPatching(RIO_GBA_ADDRESS));
+    //gRomGpio.Initialize((rio_registers_t*)sdc_loadRomBlockForPatching(RIO_GBA_ADDRESS));
     dc_flushRange((void*)ROM_LINEAR_DS_ADDRESS, ROM_LINEAR_SIZE);
     dc_flushRange(gGbaBios, sizeof(gGbaBios));
     ic_invalidateAll();
