@@ -30,6 +30,32 @@ static DWORD sClusterTable[64];
 static u32 sSkipSaveCheckInstruction;
 extern bool gSlot2Active;
 
+void fillDebugBuf(void* buf, u32 size, const char* filePath)
+{
+    FIL gDebugBuf;
+    memset(&gDebugBuf, 0, sizeof(gDebugBuf));
+    if (f_open(&gDebugBuf, filePath, FA_OPEN_EXISTING | FA_READ | FA_WRITE) == FR_OK)
+    {
+        f_lseek(&gDebugBuf, 0);
+        for (u32 i = 0; i < size; ++i)
+        {
+            const u32 data = *(u32*)(void*)(buf + i);
+            UINT written = 0;
+            f_write(&gDebugBuf, &data, 1, &written);
+        }
+        f_sync(&gDebugBuf);
+    } else if (f_open(&gDebugBuf, filePath, FA_CREATE_NEW | FA_OPEN_EXISTING | FA_READ | FA_WRITE) == FR_OK){
+        f_lseek(&gDebugBuf, 0);
+        for (u32 i = 0; i < size; ++i)
+        {
+            const u32 data = *(u32*)(void*)(buf + i);
+            UINT written = 0;
+            f_write(&gDebugBuf, &data, 1, &written);
+        }
+        f_sync(&gDebugBuf);
+    }
+}
+
 // temporarily
 extern FIL gFile;
 
