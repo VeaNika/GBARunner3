@@ -16,7 +16,7 @@ typedef struct
 
 static SdcFetch sCurrentFetch;
 
-[[gnu::section(".vramhi.bss")]]
+[[gnu::section(".lutbuff")]]
 void* sdc_romBlockToCacheBlock[SDC_ROM_BLOCK_COUNT];
 
 /// @brief Random generator state for random cache replacement.
@@ -43,7 +43,7 @@ static u32 getBlockToReplace(void)
 {
     sRandomState = sRandomState * 1566083941u + 2531011u;
     u32 maxPlusOne = sBlockCount;
-    if (sTabuBlock != SDC_BLOCK_INVALID)
+    if (__builtin_expect((sTabuBlock != SDC_BLOCK_INVALID), 0))
     {
         maxPlusOne--;
     }
@@ -51,9 +51,14 @@ static u32 getBlockToReplace(void)
     return block == sTabuBlock ? (sBlockCount - 1) : block;
 }
 
-static bool isCurrentlyFetching(void)
+// static bool isCurrentlyFetching(void)
+// {
+//     return sCurrentFetch.cacheBlock != SDC_BLOCK_INVALID;
+// }
+
+static inline bool isCurrentlyFetchingBlock(u32 romBlock)
 {
-    return sCurrentFetch.cacheBlock != SDC_BLOCK_INVALID;
+    return sCurrentFetch.romBlock == romBlock && sCurrentFetch.cacheBlock != SDC_BLOCK_INVALID;
 }
 
 static void finishFetch()
@@ -75,7 +80,7 @@ static u32 getSdSectorOfRomBlock(u32 romBlock)
 
     FATFS* fs = gFile.obj.fs;
     u32* tbl = gFile.cltbl + 1;
-    u32 csect = (UINT)(romOffset / 512 & (fs->csize - 1));
+    u32 csect = (UINT)(romOffset >> 9) & (fs->csize - 1);
     u32 cshift = __builtin_ctz(fs->csize) + 9;
     u32 cl = (DWORD)(romOffset >> cshift);
     while (true)
@@ -100,7 +105,10 @@ static void fillOutOfBoundsCacheBlock(u32 romBlock, u32 cacheBlock)
     u32 powerOf2RomSize = romSize < 0x100000 ? 0x100000 : (1 << (32 - __builtin_clz(romSize - 1)));
     if (romBlock * SDC_BLOCK_SIZE < powerOf2RomSize)
     {
-        memset(&sdc_cache[cacheBlock][0], 0xFF, SDC_BLOCK_SIZE);
+        //memset(&sdc_cache[cacheBlock][0], 0xFF, SDC_BLOCK_SIZE);
+        for (u32* dst = (u32*)&sdc_cache[cacheBlock][0], *end = dst + (SDC_BLOCK_SIZE >> 2); dst < end; dst++)
+        *dst = 0xFFFFFFFF;
+
     }
     else
     {
@@ -125,7 +133,7 @@ static void* loadRomBlock(u32 romBlock, u32 cacheBlock)
     u32 sector = getSdSectorOfRomBlock(romBlock);
 
     u32 irqs = fs_waitForCompletionOfCurrentTransaction(true);
-    if (isCurrentlyFetching())
+    if (isCurrentlyFetchingBlock(romBlock))
     {
         finishFetch();
     }
@@ -147,7 +155,9 @@ static void* loadRomBlock(u32 romBlock, u32 cacheBlock)
             {
                 u32 forbiddenReplacementRangeStart = forbiddenReplacementRange & 0xFFFF;
                 u32 forbiddenReplacementRangeEnd = forbiddenReplacementRange >> 16;
-                while (true)
+                int retryCount = 0;
+                const int MAX_RETRIES = 16;
+                while (retryCount++ < MAX_RETRIES)
                 {
                     u32 oldRomBlock = sCacheBlockToRomBlock[cacheBlock];
                     if (oldRomBlock == SDC_ROM_BLOCK_INVALID ||
@@ -163,12 +173,15 @@ static void* loadRomBlock(u32 romBlock, u32 cacheBlock)
     u32 oldRomBlock = sCacheBlockToRomBlock[cacheBlock];
     if (oldRomBlock != SDC_ROM_BLOCK_INVALID)
     {
-        sdc_romBlockToCacheBlock[oldRomBlock] = NULL;
+        if (oldRomBlock != SDC_ROM_BLOCK_INVALID && oldRomBlock != romBlock)
+        {
+            sdc_romBlockToCacheBlock[oldRomBlock] = NULL;
+        }
         sCacheBlockToRomBlock[cacheBlock] = SDC_ROM_BLOCK_INVALID;
     }
 
     FsWaitToken waitToken;
-    if (sector != 0)
+    if (__builtin_expect(sector != 0, 1))
     {
         fs_readCacheAlignedSectorsAsync(
             gFile.obj.fs->pdrv == DEV_FAT ? FS_DEVICE_DLDI : FS_DEVICE_DSI_SD,
@@ -184,7 +197,7 @@ static void* loadRomBlock(u32 romBlock, u32 cacheBlock)
     }
 
     arm_restoreIrqs(irqs);
-    if (sector != 0)
+    if (__builtin_expect(sector != 0, 1))
     {
         irqs = fs_waitForCompletion(&waitToken, true);
         if (sCurrentFetch.romBlock == romBlock)
@@ -207,7 +220,7 @@ const void* sdc_loadRomBlockDirect(u32 romAddress)
 {
     vm_enableNestedIrqs();
     // logAddress(romAddress);
-    u32 romBlock = ((romAddress << 7) >> 7) / SDC_BLOCK_SIZE;
+    u32 romBlock = (romAddress & SDC_ROM_ADDRESS_MASK) >> SDC_BLOCK_SHIFT;
     void* cacheBlock = loadRomBlock(romBlock, SDC_BLOCK_INVALID);
     vm_disableNestedIrqs();
     return cacheBlock;
@@ -215,7 +228,7 @@ const void* sdc_loadRomBlockDirect(u32 romAddress)
 
 void* sdc_loadRomBlockForPatching(u32 romAddress)
 {
-    u32 romBlock = ((romAddress << 7) >> 7) / SDC_BLOCK_SIZE;
+    u32 romBlock = (romAddress & SDC_ROM_ADDRESS_MASK) >> SDC_BLOCK_SHIFT;
     void* data = sdc_romBlockToCacheBlock[romBlock];
     // if not loaded at all yet, or not permanent
     if (!data || (u32)data < (u32)&sdc_cache[sBlockCount][0])

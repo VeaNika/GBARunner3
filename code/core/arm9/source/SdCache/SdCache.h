@@ -31,7 +31,7 @@ void* sdc_loadRomBlockForPatching(u32 romAddress);
 
 static inline const void* sdc_getRomBlock(u32 romAddress)
 {
-    u32 romBlock = ((romAddress << 7) >> 7) >> SDC_BLOCK_SHIFT;
+    u32 romBlock = (romAddress & SDC_ROM_ADDRESS_MASK) >> SDC_BLOCK_SHIFT;
     void* data = sdc_romBlockToCacheBlock[romBlock];
     if (data)
         return data;
@@ -54,7 +54,7 @@ static inline void sdc_setIrqForbiddenReplacementRange(u32 romAddress, u32 lengt
         sdc_resetIrqForbiddenReplacementRange();
         return;
     }
-    romAddress = (romAddress << 7) >> 7;
+    romAddress = (romAddress & SDC_ROM_ADDRESS_MASK) >> SDC_BLOCK_SHIFT;
     u32 startRomBlock = romAddress >> SDC_BLOCK_SHIFT;
     u32 endRomBlock = (romAddress + length + (SDC_BLOCK_SIZE - 1)) >> SDC_BLOCK_SHIFT;
     gSdCacheIrqForbiddenRomBlockReplacementRange = startRomBlock | (endRomBlock << 16);

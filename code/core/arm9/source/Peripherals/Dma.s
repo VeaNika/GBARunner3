@@ -57,6 +57,14 @@ arm_func emu_dmaCntHStore16
     cmp r0, #GBA_REG_OFFS_DMA3CNT
         bicne r9, r9, #(1 << 11) // clear rom dreq bit for channels 0-2
     add r0, r0, r11
+    tst r9, #(3 << 12)   // check start timing bits
+;     cmp r8, #GBA_REG_OFFS_DMA1CNT_H
+;     beq 1f
+;     cmp r8, #GBA_REG_OFFS_DMA2CNT_H
+;     bne 2f
+; 1:
+    bic r9, r9, #0x0200   // clear repeat bit if FIFO DMA
+; 2:
     mov r1, r9
     bl dma_CntHStore16
     pop {r0-r3,lr}
