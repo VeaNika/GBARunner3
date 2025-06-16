@@ -232,7 +232,7 @@ As a result, many early GBA games were designed with oversaturated and overly br
 Interestingly, models like the DS Phat (NTR-001) and the Game Boy Micro (OXY-001), which, despite having backlit screens, still use reflective LCDs with a pixel arrangement closer to that of the AGB-001, preserving the original look more accurately.      
 
 <div align="center">
-    <img src="https://raw.githubusercontent.com/VeaNika/GBARunner3/feature/readme-preview/docs/images/GBARunner3_ColorCorrection_1.webp" width="400"/>
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_ColorCorrection_1.webp" width="400"/>
 </div>    
 
 Emulators commonly apply shaders to simulate the AGB-001’s look on modern displays, recreating how games were originally meant to be seen on a real GBA display. But since the Nintendo DS lacks shader support, GBARunner3 takes a different approach: **it intercepts palette writes at runtime and uses a precomputed LUT to apply color correction.**
