@@ -1,7 +1,7 @@
 # GBARunner3
 
 <div align="center">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_Logo.png" width="1000"/>
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_Logo.png" width="1000"/>
 </div>    
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
@@ -218,13 +218,13 @@ If no per-game config is found, GBARunner3 will fall back to the global `GBARunn
 ## True GBA Color Correction    
 
 <div align="center">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_GBA_Models.jpg" width="300"/>
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_GBA_Models.jpg" width="300"/>
 </div>    
 
 The original GBA (AGB-001) uses a non-backlit, reflective LCD display. It not only requires external light to be visible, but also features an unconventional RGB subpixel layout:      
 
 <div align="center">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_GBA_Pixels.jpg" width="250"/>
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_GBA_Pixels.jpg" width="250"/>
 </div>    
 
 As a result, many early GBA games were designed with oversaturated and overly bright palettes, often deviating from true color accuracy to remain visible. These look normal on the AGB-001, but on later models like the GBA SP (AGS-101) and Nintendo DS Lite (USG-001), which use standard backlit RGB panels, these appear washed out or color shifted.
@@ -240,13 +240,13 @@ Emulators commonly apply shaders to simulate the AGB-001’s look on modern disp
 The LUT is generated at boot based on selected color profile matrices, derived from libretro shaders by **hunterk and Pokefan531**. Below are direct feed screenshots from GBARunner3, showcasing the available color correction profiles.  
 
 <p align="center">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_ColorLut_1.webp" width="450">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_ColorLut_2.webp" width="450">
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_ColorLut_1.webp" width="450">
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_ColorLut_2.webp" width="450">
 </p>    
 
 <p align="center">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_ColorLut_3.webp" width="450">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_ColorLut_4.webp" width="450">
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_ColorLut_3.webp" width="450">
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_ColorLut_4.webp" width="450">
 </p>    
 
 #### Gamma Correction Levels    
@@ -254,7 +254,7 @@ The LUT is generated at boot based on selected color profile matrices, derived f
 Gamma correction further improves visuals by deepening contrast and color intensity. This is especially useful for games with washed-out palettes. The image below shows each available gamma level in GBARunner3:  
 
 <div align="center">
-    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/images/GBARunner3_GammaLut_1.webp" width="900"/>
+    <img src="https://github.com/VeaNika/GBARunner3/blob/feature/readme-preview/docs/Images/GBARunner3_GammaLut_1.webp" width="900"/>
 </div>   
 
 ## Troubleshooting
