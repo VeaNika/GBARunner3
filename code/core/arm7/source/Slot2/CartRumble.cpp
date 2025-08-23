@@ -61,13 +61,13 @@ RumbleDevice CartRumble::DetectDevice()
 
 void CartRumble::DoRumble(bool enable)
 {
-    if (detectedRumbleDevice != RUMBLE_NDS_RUMBLE_PAK || detectedRumbleDevice == RUMBLE_SUPERCARD)
+    if (detectedRumbleDevice != RUMBLE_NDS_RUMBLE_PAK && detectedRumbleDevice != RUMBLE_SUPERCARD)
     {
-        sc_change_mode(SC_ENABLE_RUMBLE);
         GBA_GPIO_DIRECTION = GBA_GPIO_ENABLE_CMD;
         GBA_GPIO_DATA = enable ? GBA_GPIO_ENABLE_CMD : GBA_GPIO_DISABLE_CMD;
-        sc_change_mode(SC_ENABLE_CARD);
     }
+    if(detectedRumbleDevice == RUMBLE_SUPERCARD)
+        sc_change_mode(SC_ENABLE_RUMBLE);
     DS_RUMBLE_PAK_CTRL = enable ? DS_RUMBLE_PAK_ON : DS_RUMBLE_PAK_OFF;
 }
 
@@ -81,7 +81,10 @@ void CartRumble::InitSlot2(u16 strength)
         {
             CartRumble::sc_change_mode(SC_ENABLE_CARD);
         }
-        CartRumble::TryToWakeEzFlashOde();
-        CartRumble::EzFlashCommand(EZ_UNLOCK_RUMBLE, strength);
+        else
+        {
+            CartRumble::TryToWakeEzFlashOde();
+            CartRumble::EzFlashCommand(EZ_UNLOCK_RUMBLE, strength);
+        }
     }
 }
