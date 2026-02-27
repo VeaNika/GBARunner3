@@ -1,7 +1,7 @@
 name: Build nightly
 
 on:
-  release:
+  push:
     types: [prereleased]
   push:
     paths-ignore:
