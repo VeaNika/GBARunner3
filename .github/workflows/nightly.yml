@@ -1,6 +1,8 @@
 name: Build nightly
 
 on:
+  release:
+    types: [prereleased]
   push:
     paths-ignore:
       - 'README.md'
