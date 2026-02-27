@@ -3,7 +3,6 @@ name: Build nightly
 on:
   push:
     types: [prereleased]
-  push:
     paths-ignore:
       - 'README.md'
       - 'docs'
